@@ -286,8 +286,8 @@ impl VersionLease {
             .map(|layout| {
                 Self::acquire(&layout)
                     .context(
-                        "failed to protect this managed Warp Agent CLI version; retry the \
-                         command, or reinstall Warp Agent CLI if the problem persists",
+                        "failed to protect this managed Brasa Agent CLI version; retry the \
+                         command, or reinstall Brasa Agent CLI if the problem persists",
                     )
                     .map(Some)
             })
@@ -307,8 +307,8 @@ impl VersionLease {
 
         if !is_complete_version_dir(layout, &layout.running_version_dir) {
             bail!(
-                "the managed Warp Agent CLI version at {:?} was retired while this process was \
-                 starting; retry the command, or reinstall Warp Agent CLI if the problem persists",
+                "the managed Brasa Agent CLI version at {:?} was retired while this process was \
+                 starting; retry the command, or reinstall Brasa Agent CLI if the problem persists",
                 layout.running_version_dir
             );
         }
@@ -673,7 +673,7 @@ async fn check_for_update(layout: InstallLayout) -> Result<CheckDecision> {
         VersionDirState::Invalid => {
             bail!(
                 "refusing to replace incomplete or invalid installed TUI version at \
-                 {version_dir:?}; remove that directory or reinstall Warp Agent CLI, then retry"
+                 {version_dir:?}; remove that directory or reinstall Brasa Agent CLI, then retry"
             );
         }
         VersionDirState::Complete | VersionDirState::Missing => {}
@@ -759,7 +759,7 @@ async fn install_update(layout: InstallLayout, latest_version: String) -> Result
         VersionDirState::Invalid => {
             bail!(
                 "refusing to replace incomplete or invalid installed TUI version at \
-                 {version_dir:?}; remove that directory or reinstall Warp Agent CLI, then retry"
+                 {version_dir:?}; remove that directory or reinstall Brasa Agent CLI, then retry"
             );
         }
     };
@@ -780,7 +780,7 @@ async fn install_update(layout: InstallLayout, latest_version: String) -> Result
             VersionDirState::Invalid => {
                 bail!(
                     "refusing to replace incomplete or invalid installed TUI version at \
-                     {version_dir:?}; remove that directory or reinstall Warp Agent CLI, then retry"
+                     {version_dir:?}; remove that directory or reinstall Brasa Agent CLI, then retry"
                 );
             }
         }

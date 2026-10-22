@@ -25,8 +25,8 @@ use crate::input_suggestions_mode::{
 use crate::tui_builder::TuiUiBuilder;
 
 const MAX_VISIBLE_ROWS: usize = result_row_capacity(MAX_INLINE_MENU_ROWS, true, false);
-const FALLBACK_DESCRIPTION: &str = "in the event of an error, requests may be routed to use Warp \
-credits. Warp will prioritize using your API keys over Warp credits.";
+const FALLBACK_DESCRIPTION: &str = "in the event of an error, requests may be routed to use Brasa \
+credits. Brasa will prioritize using your API keys over Brasa credits.";
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum TuiApiKeysRowKind {
     Provider(LLMProvider),

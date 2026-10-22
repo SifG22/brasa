@@ -1437,7 +1437,7 @@ impl WarpAgentPageView {
         let current_default = Self::active_base_model_display_name(ctx);
         let description = format!(
             "You added your own {provider_name} API key, but your default model is currently set \
-             to {current_default}, which won't work without Warp credits. Would you like to change \
+             to {current_default}, which won't work without Brasa credits. Would you like to change \
              your default model?"
         );
         self.show_set_default_model_modal(description, choices, ctx);
@@ -1482,7 +1482,7 @@ impl WarpAgentPageView {
         let current_default = Self::active_base_model_display_name(ctx);
         let description = format!(
             "You added the \"{}\" custom endpoint, but your default model is currently set to \
-             {current_default}, which won't work without Warp credits. Would you like to change \
+             {current_default}, which won't work without Brasa credits. Would you like to change \
              your default model?",
             endpoint.name
         );
@@ -1989,7 +1989,7 @@ impl WarpAgentPageView {
                     ToastStack::handle(ctx).update(ctx, |toast_stack, ctx| {
                         let toast = DismissibleToast::default(
                             "Opening your browser to connect your ChatGPT subscription. You may \
-                             be asked to sign in to Warp first…"
+                             be asked to sign in to Brasa first…"
                                 .to_string(),
                         )
                         .with_object_id(CHATGPT_OAUTH_CONNECT_TOAST_OBJECT_ID.to_string())
@@ -2097,7 +2097,7 @@ impl WarpAgentPageView {
         let message = match failure {
             ChatGPTConnectFailure::AlreadyLinked => {
                 "Couldn't connect your ChatGPT subscription. That ChatGPT account is already \
-                 connected to a different Warp account, or this Warp account already has a \
+                 connected to a different Brasa account, or this Brasa account already has a \
                  ChatGPT account connected. Disconnect it first, then try again."
             }
             ChatGPTConnectFailure::EmailUnverified => {
@@ -2105,12 +2105,12 @@ impl WarpAgentPageView {
                  account with OpenAI, then try again."
             }
             ChatGPTConnectFailure::Denied => {
-                "ChatGPT subscription not connected. Warp needs your permission in the browser \
+                "ChatGPT subscription not connected. Brasa needs your permission in the browser \
                  to use your plan."
             }
             ChatGPTConnectFailure::AccountMismatch => {
                 "Couldn't connect your ChatGPT subscription. Your browser is signed in to a \
-                 different Warp account than this one. Sign in to this account in the browser, \
+                 different Brasa account than this one. Sign in to this account in the browser, \
                  then try again."
             }
             ChatGPTConnectFailure::Unknown => {
@@ -6668,11 +6668,11 @@ impl GeminiEnterpriseWidget {
         let are_credentials_enabled =
             user_workspaces.is_gemini_enterprise_credentials_enabled(&scope, app);
         let toggle_description = if is_admin_enforced {
-            "Warp routes eligible requests through your workspace's Gemini Enterprise Google Cloud \
+            "Brasa routes eligible requests through your workspace's Gemini Enterprise Google Cloud \
              project. This setting is managed by your organization."
                 .to_string()
         } else {
-            "Warp routes eligible requests through your workspace's Gemini Enterprise Google Cloud \
+            "Brasa routes eligible requests through your workspace's Gemini Enterprise Google Cloud \
              project."
                 .to_string()
         };

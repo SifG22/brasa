@@ -164,16 +164,16 @@ impl LoadGeapCredentialsError {
         match self {
             Self::MintIdentityToken { .. } => (
                 "Couldn't authenticate with Brasa".to_string(),
-                "Warp couldn't create Gemini Enterprise credentials. Check your network \
-                 connection and that you're signed in to Warp, then try again."
+                "Brasa couldn't create Gemini Enterprise credentials. Check your network \
+                 connection and that you're signed in to Brasa, then try again."
                     .to_string(),
                 GeapRecoveryAction::Retry,
             ),
             Self::ExchangeToken { status, .. } if is_admin_config_status(*status) => (
                 "Gemini Enterprise is misconfigured".to_string(),
-                "Google rejected Warp's identity token. Ask your team admin to verify \
+                "Google rejected Brasa's identity token. Ask your team admin to verify \
                  that the Workload Identity Federation audience exactly matches the provider's \
-                 full resource name, the provider trusts Warp's OIDC issuer, and its attribute \
+                 full resource name, the provider trusts Brasa's OIDC issuer, and its attribute \
                  condition allows this workspace."
                     .to_string(),
                 GeapRecoveryAction::ContactAdmin,
@@ -187,8 +187,8 @@ impl LoadGeapCredentialsError {
             ),
             Self::ImpersonateServiceAccount { status, .. } if is_admin_config_status(*status) => (
                 "Gemini Enterprise service account access is misconfigured".to_string(),
-                "Warp couldn't obtain credentials for the service account configured by your \
-                 team admin. Ask them to verify the service account email, confirm the Warp \
+                "Brasa couldn't obtain credentials for the service account configured by your \
+                 team admin. Ask them to verify the service account email, confirm the Brasa \
                  workload identity has the Workload Identity User role on that service account, \
                  and ensure the IAM Service Account Credentials API is enabled."
                     .to_string(),
@@ -248,7 +248,7 @@ impl GeapCredentialsState {
             ),
             Self::Disabled => (
                 "Gemini Enterprise disabled".to_string(),
-                "Warp will not load Gemini Enterprise credentials until it's enabled by you or \
+                "Brasa will not load Gemini Enterprise credentials until it's enabled by you or \
                  your team admin."
                     .to_string(),
                 Icon::Key,
@@ -256,7 +256,7 @@ impl GeapCredentialsState {
             Self::Unconfigured => (
                 "Gemini Enterprise setup incomplete".to_string(),
                 "Your team admin needs to configure the Workload Identity Federation audience \
-                before Warp can load credentials."
+                before Brasa can load credentials."
                     .to_string(),
                 Icon::AlertTriangle,
             ),
@@ -264,7 +264,7 @@ impl GeapCredentialsState {
                 "Gemini Enterprise setup conflicts across teams".to_string(),
                 format!(
                     "{} have Gemini Enterprise set up with different Google Cloud projects, so \
-                     Warp can't tell which one to use. Ask an admin to align the configuration.",
+                     Brasa can't tell which one to use. Ask an admin to align the configuration.",
                     join_team_names(team_names)
                 ),
                 Icon::AlertTriangle,

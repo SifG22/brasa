@@ -309,7 +309,7 @@ impl AiAccessSlide {
             .finish();
 
         let description = FormattedTextElement::from_str(
-            "Explore Warp's built-in AI features before committing to a plan, or bring your own \
+            "Explore Brasa's built-in AI features before committing to a plan, or bring your own \
              inference.",
             appearance.ui_font_family(),
             14.,

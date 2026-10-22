@@ -1,5 +1,9 @@
 # Novedades de Brasa
 
+## 0.0.3
+
+Corrección de errores y mejoras en los textos de la interfaz.
+
 ## 0.0.2
 
 Correcciones en la publicación de versiones.

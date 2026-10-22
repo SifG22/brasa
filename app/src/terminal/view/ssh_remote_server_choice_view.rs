@@ -77,7 +77,7 @@ impl SshRemoteServerChoiceView {
                 rich_navigation_button(
                     "Install Brasa's SSH extension".to_string(),
                     Some(
-                        "Install Warp's extension to enable agent features like file browsing, \
+                        "Install Brasa's extension to enable agent features like file browsing, \
                          code review, and intelligent command completions in this session."
                             .to_string(),
                     ),
@@ -176,7 +176,7 @@ impl SshRemoteServerChoiceView {
         let manage_settings_link = appearance
             .ui_builder()
             .link(
-                "Manage Warpify settings".into(),
+                "Manage Brasify settings".into(),
                 None,
                 Some(Box::new(|ctx| {
                     ctx.dispatch_typed_action(SshRemoteServerChoiceViewAction::OpenWarpifySettings);

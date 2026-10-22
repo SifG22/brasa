@@ -324,7 +324,7 @@ pub async fn make_authenticated_client(
             log::warn!(
                 "File-based MCP server {uuid} requires OAuth authentication; \
                  skipping in headless mode. To use this server, authenticate it \
-                 in the Warp desktop app first."
+                 in the Brasa desktop app first."
             );
         }
         // Naming the alternatives matters more than it looks: a cloud agent
@@ -333,9 +333,9 @@ pub async fn make_authenticated_client(
         // act on.
         return Err(AuthError::AuthorizationFailed(
             "This MCP server asked for interactive OAuth, which cannot run in a headless or \
-             cloud agent. Either attach the server as a Warp-managed MCP so the platform \
+             cloud agent. Either attach the server as a Brasa-managed MCP so the platform \
              supplies its credentials, or configure a static credential header backed by a \
-             managed secret. Authenticating the server in the Warp desktop app also works for \
+             managed secret. Authenticating the server in the Brasa desktop app also works for \
              runs on that same machine."
                 .to_string(),
         ));

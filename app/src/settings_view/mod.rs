@@ -392,7 +392,7 @@ impl SettingsSection {
             Self::SharedBlocks => "Shared blocks",
             Self::Teams => "Teams",
             Self::WarpDrive => "Brasa Drive",
-            Self::Warpify => "Warpify",
+            Self::Warpify => "Brasify",
             Self::WarpAgent => "Brasa Agent",
             Self::AgentProfiles => "Profiles",
             Self::AgentMCPServers => "MCP servers",
@@ -428,7 +428,7 @@ impl SettingsSection {
             "Shared blocks" => Self::SharedBlocks,
             "Teams" => Self::Teams,
             "Brasa Drive" | "WarpDrive" => Self::WarpDrive,
-            "Warpify" => Self::Warpify,
+            "Brasify" | "Warpify" => Self::Warpify,
             // "Oz" and "AI" are older names for what is now the Warp Agent page.
             "Brasa Agent" | "Oz" | "AI" => Self::WarpAgent,
             "Profiles" | "AgentProfiles" => Self::AgentProfiles,

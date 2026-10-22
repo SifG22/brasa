@@ -33,7 +33,7 @@ pub const FAILED_OUTPUT_USAGE_NOTICE_TEXT: &str = "This response won't count tow
 pub const OUT_OF_CREDITS_SUBSCRIBE_LABEL: &str = "Subscribe";
 /// Disclosure shown in place of a ChatGPT subscription error once the user has switched the
 /// conversation to Warp-funded inference.
-pub const CHATGPT_CONTINUED_WITH_WARP_CREDITS_TEXT: &str = "Continued with Warp credits. Your \
+pub const CHATGPT_CONTINUED_WITH_WARP_CREDITS_TEXT: &str = "Continued with Brasa credits. Your \
      ChatGPT subscription won't be used for the rest of this conversation.";
 /// Text to use as a label throughout the app for user interactions that will attach selected
 /// block(s) or text selections to a new AI query.
@@ -172,7 +172,7 @@ pub fn failed_output_presentation(
             FailedOutputPresentation::GeminiEnterpriseCredentialsExpiredOrInvalid {
                 fallback_message: format!(
                     "{ERROR_APOLOGY_TEXT}\n\nGemini Enterprise credentials expired or invalid.\n\n\
-                     Warp couldn't authenticate with Google Cloud. Refresh your Gemini Enterprise credentials, then retry the request."
+                     Brasa couldn't authenticate with Google Cloud. Refresh your Gemini Enterprise credentials, then retry the request."
                 ),
             }
         }

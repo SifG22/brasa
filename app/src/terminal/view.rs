@@ -10565,11 +10565,11 @@ impl TerminalView {
 
         let a11y_message = match &warpify_keybinding {
             Some(keystroke) => format!(
-                "You can press {} to Warpify this {} for more Brasa features.",
+                "You can press {} to Brasify this {} for more Brasa features.",
                 keystroke.displayed(),
                 lowercase_title
             ),
-            None => format!("You can Warpify this {lowercase_title} for more Brasa features."),
+            None => format!("You can Brasify this {lowercase_title} for more Brasa features."),
         };
 
         model
@@ -23644,7 +23644,7 @@ impl TerminalView {
             } else if shell_plugins.contains("pure") {
                 Some(BannerTextContent::formatted_text(vec![
                     FormattedTextFragment::plain_text(
-                        "Pure is not yet supported in Warp. You might consider one of the \
+                        "Pure is not yet supported in Brasa. You might consider one of the \
                         supported prompts as an alternative.  ",
                     ),
                     FormattedTextFragment::hyperlink("Learn more", PROMPT_COMPATIBILITY_URL),
@@ -27762,7 +27762,7 @@ impl TypedActionView for TerminalView {
                 WarpA11yRole::TextareaRole,
             )),
             ShowWarpifySettings => Custom(AccessibilityContent::new_without_help(
-                "Opened Warpify Settings",
+                "Opened Brasify Settings",
                 WarpA11yRole::ButtonRole,
             )),
             OpenFilesPalette { .. } => Custom(AccessibilityContent::new_without_help(

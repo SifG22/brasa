@@ -294,7 +294,7 @@ static DEFAULT_TIPS: LazyLock<Vec<AgentTip>> = LazyLock::new(|| {
             kind: AgentTipKind::Context,
         },
         AgentTip {
-            description: "Warpify a remote SSH session to enable the Brasa Agent inside that environment.".to_string(),
+            description: "Brasify a remote SSH session to enable the Brasa Agent inside that environment.".to_string(),
             link: Some("https://docs.warp.dev/terminal/warpify".to_string()),
             binding_name: None,
             action: None,

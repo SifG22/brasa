@@ -50,9 +50,9 @@ use crate::workspaces::user_workspaces::{HeadlessTeamScope, TeamScope, UserWorks
 pub(crate) enum BootstrapError {
     /// The PTY or shell process failed before the bootstrap script completed.
     /// When `reason` is `Some`, the message is
-    /// "Shell spawn failed: {reason}. Check the Warp logs for details."
+    /// "Shell spawn failed: {reason}. Check the Brasa logs for details."
     /// When `reason` is `None`, it is
-    /// "Shell spawn failed. Check the Warp logs for details."
+    /// "Shell spawn failed. Check the Brasa logs for details."
     PtySpawnFailed { reason: Option<String> },
     /// The bootstrap script did not complete within the expected time.
     TimedOut,
@@ -76,7 +76,7 @@ impl std::fmt::Display for BootstrapError {
             BootstrapError::TimedOut => write!(
                 f,
                 "Terminal session did not start within the expected time. \
-                 Check the Warp logs for details."
+                 Check the Brasa logs for details."
             ),
             BootstrapError::InternalError => {
                 write!(f, "An unexpected internal error occurred during bootstrap.")

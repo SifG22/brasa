@@ -64,8 +64,8 @@ const FONT_SIZE: f32 = 12.;
 
 const SAFE_MODE_TITLE: &str = "Secret redaction";
 static SAFE_MODE_DESCRIPTION: LazyLock<&'static str> = LazyLock::new(|| {
-    "When this setting is enabled, Warp will scan blocks, the contents of \
-        Warp Drive objects, and Oz prompts for potential sensitive \
+    "When this setting is enabled, Brasa will scan blocks, the contents of \
+        Brasa Drive objects, and Oz prompts for potential sensitive \
         information and prevent saving or sending this data to any \
         servers. You can customize this list via regexes."
 });
@@ -77,12 +77,12 @@ const TELEMETRY_DESCRIPTION_OLD: &str = "App analytics help us make the product 
     app usage metadata, never console input or output.";
 const TELEMETRY_TITLE: &str = "Help improve Brasa";
 const TELEMETRY_DESCRIPTION: &str = "App analytics help us make the product better for you. We may collect \
-    certain console interactions to improve Warp's AI capabilities.";
+    certain console interactions to improve Brasa's AI capabilities.";
 const TELEMETRY_DOCS_URL: &str = "https://docs.warp.dev/support-and-community/privacy-and-security/privacy#what-telemetry-data-does-warp-collect-and-why";
 
 const DATA_MANAGEMENT_TITLE: &str = "Manage your data";
-const DATA_MANAGEMENT_DESCRIPTION: &str = "At any time, you may choose to delete your Warp account permanently. \
-    You will no longer be able to use Warp.";
+const DATA_MANAGEMENT_DESCRIPTION: &str = "At any time, you may choose to delete your Brasa account permanently. \
+    You will no longer be able to use Brasa.";
 const DATA_MANAGEMENT_LINK_TEXT: &str = "Visit the data management page";
 
 const PRIVACY_POLICY_TITLE: &str = "Privacy policy";
@@ -1725,7 +1725,7 @@ impl SettingsWidget for CloudConversationStorageWidget {
                         if is_checked {
                             "Agent conversations can be shared with others and are retained \
                             when you log in on different devices. This data is only stored \
-                            for product functionality, and Warp will not use it for analytics."
+                            for product functionality, and Brasa will not use it for analytics."
                         } else {
                             "Agent conversations are only stored locally on your machine, are \
                             lost upon logout, and cannot be shared. Note: conversation data \
@@ -1788,7 +1788,7 @@ impl SettingsWidget for NetworkLogWidget {
                 ui_builder
                     .paragraph(
                         "We've built a native console that allows you to view all communications \
-                        from Warp to external servers to ensure you feel comfortable that your \
+                        from Brasa to external servers to ensure you feel comfortable that your \
                         work is always kept safe."
                             .to_owned(),
                     )

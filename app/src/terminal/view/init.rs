@@ -326,7 +326,7 @@ pub fn init(app: &mut AppContext) {
         ),
         EditableBinding::new(
             "terminal:warpify_subshell",
-            "Warpify subshell",
+            "Brasify subshell",
             TerminalAction::TriggerSubshellBootstrap,
         )
         .with_key_binding("ctrl-i")

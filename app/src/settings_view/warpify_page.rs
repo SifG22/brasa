@@ -51,7 +51,7 @@ pub fn init_actions_from_parent_view<T: Action + Clone>(
         .is_supported_on_current_platform()
     {
         toggle_binding_pairs.push(ToggleSettingActionPair::new(
-            "SSH Warpification",
+            "SSH Brasification",
             builder(SettingsAction::WarpifyPageToggle(
                 WarpifyPageAction::ToggleSshWarpification,
             )),
@@ -163,7 +163,7 @@ impl WarpifyPageView {
             .is_supported_on_current_platform()
         {
             categories.push(Category::with_header(
-                CategoryHeader::new("SSH").with_subtitle("Warpify your interactive SSH sessions."),
+                CategoryHeader::new("SSH").with_subtitle("Brasify your interactive SSH sessions."),
                 vec![Box::new(SSHWidget::default())],
             ));
         }
@@ -490,7 +490,7 @@ impl TitleWidget {
     fn render_top_of_page(&self, appearance: &Appearance, _app: &AppContext) -> Box<dyn Element> {
         let warpify_description = vec![
             FormattedTextFragment::plain_text(
-                "Configure whether Warp attempts to “Warpify” (add support for blocks, \
+                "Configure whether Brasa attempts to “Brasify” (add support for blocks, \
                     input modes, etc) certain shells. ",
             ),
             FormattedTextFragment::hyperlink(
@@ -514,7 +514,7 @@ impl TitleWidget {
         .finish();
 
         Flex::column()
-            .with_child(render_page_title("Warpify", HEADER_FONT_SIZE, appearance))
+            .with_child(render_page_title("Brasify", HEADER_FONT_SIZE, appearance))
             .with_child(warpify_description)
             .finish()
     }
@@ -636,7 +636,7 @@ impl SettingsWidget for SSHWidget {
             &WarpifySettings::as_ref(app).enable_ssh_warpification,
             move || {
                 render_body_item::<WarpifyPageAction>(
-                    "Warpify SSH Sessions".into(),
+                    "Brasify SSH Sessions".into(),
                     None,
                     LocalOnlyIconState::for_setting(
                         EnableSshWarpification::storage_key(),

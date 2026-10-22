@@ -30,7 +30,7 @@ impl WarpifyFooterView {
         let button_size = ButtonSize::XSmall;
 
         let warpify_button = ctx.add_typed_action_view(|_ctx| {
-            ActionButton::new("Warpify subshell", AgentFooterButtonTheme::new(None))
+            ActionButton::new("Brasify subshell", AgentFooterButtonTheme::new(None))
                 .with_icon(Icon::Warp)
                 .with_size(button_size)
                 .with_tooltip("Enable Brasa shell integration in this session")
