@@ -5537,7 +5537,7 @@ impl TuiTerminalSessionView {
                     let label = if conversation.is_summarizing() {
                         "Summarizing conversation"
                     } else {
-                        "Warping"
+                        "Working"
                     };
                     content = content.child(
                         TuiContainer::new(self.render_warping_indicator(label, elapsed, ctx))

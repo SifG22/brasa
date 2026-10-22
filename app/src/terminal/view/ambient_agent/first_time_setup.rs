@@ -194,7 +194,7 @@ impl FirstTimeCloudAgentSetupView {
             FormattedTextFragment::plain_text(
                 "Use Oz cloud agents to run parallel agents, build agents that run autonomously, and check in on your agents from anywhere. ",
             ),
-            FormattedTextFragment::hyperlink("Visit docs", "https://docs.warp.dev/platform/"),
+            FormattedTextFragment::hyperlink("Visit docs", "https://github.com/SifG22/brasa"),
         ];
         column.add_child(
             FormattedTextElement::new(

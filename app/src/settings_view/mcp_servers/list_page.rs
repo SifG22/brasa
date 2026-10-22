@@ -1156,7 +1156,7 @@ impl MCPServersListPageView {
                 ),
                 FormattedTextFragment::hyperlink(
                     "See supported providers.",
-                    "https://docs.warp.dev/agents/capabilities/mcp#file-based-mcp-servers",
+                    "https://github.com/SifG22/brasa",
                 ),
             ]
         });
@@ -1192,10 +1192,7 @@ impl MCPServersListPageView {
     fn render_page_body(&self, appearance: &Appearance, app: &AppContext) -> Box<dyn Element> {
         let description_fragments = vec![
             FormattedTextFragment::plain_text(DESCRIPTION_TEXT),
-            FormattedTextFragment::hyperlink(
-                "Learn more.",
-                "https://docs.warp.dev/agents/capabilities/mcp",
-            ),
+            FormattedTextFragment::hyperlink("Learn more.", "https://github.com/SifG22/brasa"),
         ];
 
         let description = FormattedTextElement::new(

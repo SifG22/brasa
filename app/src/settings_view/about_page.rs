@@ -141,8 +141,8 @@ impl SettingsWidget for AboutPageWidget {
                 .with_child(
                     ui_builder
                         .span(
-                            "Based on Warp (warpdotdev/warp), licensed under the AGPLv3. Brasa is \
-                             free software and its source code is public.",
+                            "Brasa is free software licensed under the AGPLv3 and its source code \
+                             is public.",
                         )
                         .with_soft_wrap()
                         .build()
@@ -151,8 +151,8 @@ impl SettingsWidget for AboutPageWidget {
                 )
                 .with_child(link(
                     appearance,
-                    "Warp source code",
-                    "https://github.com/warpdotdev/warp",
+                    "Brasa source code",
+                    "https://github.com/SifG22/brasa",
                     self.upstream_link_mouse_state.clone(),
                 ))
                 .finish(),

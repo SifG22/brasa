@@ -54,7 +54,7 @@ use crate::ui_components::icon_with_status::{
 };
 use crate::util::time_format::format_approx_duration_from_now_utc;
 
-const CLOUD_AGENT_DOCS_URL: &str = "https://docs.warp.dev/platform/";
+const CLOUD_AGENT_DOCS_URL: &str = "https://github.com/SifG22/brasa";
 const OZ_UPDATES_SECTION_HEADER: &str = "Latest updates";
 
 // The maximum number of Warp Agent updates from the changelog rendered in-line in the 'Latest updates' section.
@@ -1149,7 +1149,7 @@ fn render_oz_updates(props: OzUpdatesProps<'_>, app: &AppContext) -> Option<Box<
                         })
                         .with_reset_cursor_after_click()
                         .on_click(|_, app, _| {
-                            const CHANGELOG_URL: &str = "https://docs.warp.dev/changelog";
+                            const CHANGELOG_URL: &str = "https://github.com/SifG22/brasa";
                             app.open_url(CHANGELOG_URL);
                         })
                         .with_cursor(Cursor::PointingHand)

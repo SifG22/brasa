@@ -242,7 +242,7 @@ mod package_manager {
                 FormattedTextFragment::plain_text(" to install the update and re-launch Brasa.  "),
                 FormattedTextFragment::hyperlink(
                     "Please report any issues",
-                    "https://github.com/warpdotdev/Brasa/issues/new/choose",
+                    "https://github.com/SifG22/brasa/issues/new",
                 ),
             ]));
 

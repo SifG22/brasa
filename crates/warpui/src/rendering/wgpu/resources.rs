@@ -530,7 +530,7 @@ fn is_intel_uhd_620_adapter_on_windows_with_vulkan_backend(
 /// Public reports of latency/stutter bugs on Intel integrated GPU drivers (including the UHD 770):
 /// https://github.com/IGCIT/Intel-GPU-Community-Issue-Tracker-IGCIT/issues/1002
 /// https://github.com/libsdl-org/SDL/issues/5628
-/// See also https://github.com/warpdotdev/warp/issues/4856
+/// See also https://github.com/SifG22/brasa
 fn is_intel_uhd_770_adapter_on_windows(adapter_info: &wgpu::AdapterInfo) -> bool {
     cfg!(windows)
         && matches!(adapter_info.backend, Backend::Dx12 | Backend::Vulkan)
@@ -545,7 +545,7 @@ fn is_intel_uhd_770_adapter_on_windows(adapter_info: &wgpu::AdapterInfo) -> bool
 /// window decorations (e.g. title bar height). Enabling native window decorations fixes the
 /// alignment.
 ///
-/// See: https://github.com/warpdotdev/Warp/issues/6120
+/// See: https://github.com/SifG22/brasa
 pub fn adapter_has_rendering_offset_bug(adapter_info: &wgpu::AdapterInfo) -> bool {
     if !cfg!(windows) {
         return false;
@@ -557,7 +557,7 @@ pub fn adapter_has_rendering_offset_bug(adapter_info: &wgpu::AdapterInfo) -> boo
     }
 
     // Known affected Intel integrated GPU models. This list is based on user reports from
-    // https://github.com/warpdotdev/Warp/issues/6120.
+    // https://github.com/SifG22/brasa
     let affected_models = [
         "Intel(R) HD Graphics 2500",
         "Intel(R) HD Graphics 4000",
@@ -579,8 +579,8 @@ pub fn adapter_has_rendering_offset_bug(adapter_info: &wgpu::AdapterInfo) -> boo
 /// The V3D Vulkan driver on Raspberry Pi and similar ARM SBCs have panics and flickering issues.
 /// The logs have warnings about these drivers missing the `FULL_DRAW_INDEX_UINT32` downlevel flag
 /// but if it's unclear if that is the actual cause. See:
-/// https://github.com/warpdotdev/warp/issues/10618
-/// https://github.com/warpdotdev/warp/issues/4879
+/// https://github.com/SifG22/brasa
+/// https://github.com/SifG22/brasa
 fn is_v3d_vulkan_adapter(adapter_info: &wgpu::AdapterInfo) -> bool {
     cfg!(target_os = "linux")
         && adapter_info.backend == wgpu::Backend::Vulkan
@@ -807,7 +807,7 @@ fn adapter_stability_sort_func(
         log::warn!(
             "Deprioritizing Vulkan-backed Nvidia adapter due to version < {} (unsupported).\nSee \
             the \"Graphics\" secion of our docs here: \
-            https://docs.warp.dev/help/known-issues#linux-1",
+            https://github.com/SifG22/brasa",
             *MIN_SUPPORTED_NVIDIA_VERSION
         );
         AdapterSupport::Unsupported

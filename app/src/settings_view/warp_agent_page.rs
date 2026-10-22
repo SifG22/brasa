@@ -128,8 +128,7 @@ const SHARED_BLOCK_TITLE_GENERATION_DESCRIPTION: &str =
 const GIT_OPERATIONS_AUTOGEN_DESCRIPTION: &str =
     "Let AI generate commit messages and pull request titles and descriptions.";
 const WISPR_FLOW_URL: &str = "https://wisprflow.ai/";
-const CUSTOM_INFERENCE_LEARN_MORE_URL: &str =
-    "https://docs.warp.dev/agents/inference/custom-inference-endpoint/";
+const CUSTOM_INFERENCE_LEARN_MORE_URL: &str = "https://github.com/SifG22/brasa";
 const CUSTOM_INFERENCE_INFO_TOOLTIP_MAX_WIDTH: f32 = 320.;
 const CUSTOM_ENDPOINT_MODAL_MAX_HEIGHT_PERCENTAGE: f32 = 0.8;
 

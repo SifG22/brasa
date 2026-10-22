@@ -78,7 +78,7 @@ const TELEMETRY_DESCRIPTION_OLD: &str = "App analytics help us make the product 
 const TELEMETRY_TITLE: &str = "Help improve Brasa";
 const TELEMETRY_DESCRIPTION: &str = "App analytics help us make the product better for you. We may collect \
     certain console interactions to improve Brasa's AI capabilities.";
-const TELEMETRY_DOCS_URL: &str = "https://docs.warp.dev/support-and-community/privacy-and-security/privacy#what-telemetry-data-does-warp-collect-and-why";
+const TELEMETRY_DOCS_URL: &str = "https://github.com/SifG22/brasa";
 
 const DATA_MANAGEMENT_TITLE: &str = "Manage your data";
 const DATA_MANAGEMENT_DESCRIPTION: &str = "At any time, you may choose to delete your Brasa account permanently. \

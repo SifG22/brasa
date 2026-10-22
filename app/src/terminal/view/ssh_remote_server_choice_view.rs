@@ -172,7 +172,7 @@ impl SshRemoteServerChoiceView {
             .with_child(Container::new(checkbox_label).with_margin_left(4.).finish())
             .finish();
 
-        // Right: "Manage Warpify settings" link.
+        // Right: "Manage subshell settings" link.
         let manage_settings_link = appearance
             .ui_builder()
             .link(

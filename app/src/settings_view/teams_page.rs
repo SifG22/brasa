@@ -1277,7 +1277,7 @@ impl TeamsPageView {
                 ctx.open_url(upgrade_link);
             }
             UserWorkspacesEvent::GenerateUpgradeLinkRejected(err) => self.show_error(
-                "Failed to generate upgrade link. Please contact us at feedback@warp.dev",
+                "Failed to generate upgrade link. Please contact us at https://github.com/SifG22/brasa/issues",
                 Some(err),
                 ctx,
             ),
@@ -1285,7 +1285,7 @@ impl TeamsPageView {
                 ctx.open_url(billing_session_link);
             }
             UserWorkspacesEvent::GenerateStripeBillingPortalLinkRejected(err) => self.show_error(
-                "Failed to generate billing link. Please contact us at feedback@warp.dev",
+                "Failed to generate billing link. Please contact us at https://github.com/SifG22/brasa/issues",
                 Some(err),
                 ctx,
             ),
@@ -5652,11 +5652,17 @@ pub fn test_valid_domains() {
     assert!(!TeamsPageView::is_valid_domain("warp..dev"));
     assert!(!TeamsPageView::is_valid_domain(" "));
     assert!(!TeamsPageView::is_valid_domain("warp!.dev"));
-    assert!(!TeamsPageView::is_valid_domain("warp.dev>"));
-    assert!(!TeamsPageView::is_valid_domain("warp.dev."));
+    assert!(!TeamsPageView::is_valid_domain(
+        "https://github.com/SifG22/brasa>"
+    ));
+    assert!(!TeamsPageView::is_valid_domain(
+        "https://github.com/SifG22/brasa."
+    ));
     assert!(TeamsPageView::is_valid_domain("app.warp.dev"));
     assert!(TeamsPageView::is_valid_domain("warp0.dev0"));
-    assert!(TeamsPageView::is_valid_domain("warp.dev"));
+    assert!(TeamsPageView::is_valid_domain(
+        "https://github.com/SifG22/brasa"
+    ));
     assert!(TeamsPageView::is_valid_domain("miniclip.com"));
 }
 

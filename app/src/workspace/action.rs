@@ -310,8 +310,6 @@ pub enum WorkspaceAction {
     },
     ShowUpgrade,
     ShowReferralSettingsPage,
-    JoinSlack,
-    ViewUserDocs,
     ViewLatestChangelog,
     ViewPrivacyPolicy,
     SendFeedback,
@@ -1038,8 +1036,6 @@ impl WorkspaceAction {
             | TogglePalette { mode: _, source: _ }
             | ShowUpgrade
             | ShowReferralSettingsPage
-            | JoinSlack
-            | ViewUserDocs
             | ViewLatestChangelog
             | ViewPrivacyPolicy
             | SendFeedback

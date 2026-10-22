@@ -1,5 +1,9 @@
 # Novedades de Brasa
 
+## 0.0.4
+
+Fuera todo lo que llevaba a Warp: /feedback abre las incidencias de Brasa, sin comunidad de Slack, sin documentación de Warp, sin registro, planes ni invitaciones, y sin la página Warpify en ajustes.
+
 ## 0.0.3
 
 Corrección de errores y mejoras en los textos de la interfaz.

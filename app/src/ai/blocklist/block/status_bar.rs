@@ -1147,7 +1147,7 @@ struct WarpingModelInputs {
     is_new_user_query: bool,
 }
 
-const UNNAMED_FALLBACK_MODEL_WARPING_TEXT: &str = "Warping with another model.";
+const UNNAMED_FALLBACK_MODEL_WARPING_TEXT: &str = "Working with another model.";
 
 /// The fallback message's copy. It shipped before model naming existed and keeps
 /// its full stop, where everything named since ends in the row's ellipsis. The
@@ -1170,7 +1170,7 @@ fn fallback_warping_text(display_name: &str) -> String {
 /// Naming the model is `WarpingModelName`'s. `FallbackModelLoadOutputMessaging`
 /// owns the two things specific to a fallback attempt: the explanation line, and
 /// naming the previous exchange's model when this one has not reported yet. That
-/// lookback avoids a flicker from "Warping..." on agent-initiated follow-ups,
+/// lookback avoids a flicker from "Working..." on agent-initiated follow-ups,
 /// since a conversation that fell back once is likely to again, and is skipped
 /// after a new user query because the primary model may have recovered by then.
 /// Nothing else borrows another exchange's model: naming one the response may not

@@ -1409,13 +1409,8 @@ impl SettingsView {
             SettingsNavItem::Page(SettingsSection::Appearance),
             SettingsNavItem::Umbrella(SettingsUmbrella::new(
                 "Terminal",
-                vec![
-                    SettingsSection::Features,
-                    SettingsSection::Keybindings,
-                    SettingsSection::Warpify,
-                ],
+                vec![SettingsSection::Features, SettingsSection::Keybindings],
             )),
-            SettingsNavItem::Page(SettingsSection::ThirdPartyCLIAgents),
             SettingsNavItem::Page(SettingsSection::EditorAndCodeReview),
             SettingsNavItem::Page(SettingsSection::About),
         ];

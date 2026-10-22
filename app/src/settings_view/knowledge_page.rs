@@ -28,7 +28,7 @@ use crate::util::bindings;
 
 const PAGE_TITLE: &str = "Knowledge";
 
-const RULES_DOCS_URL: &str = "https://docs.warp.dev/agents/capabilities/rules";
+const RULES_DOCS_URL: &str = "https://github.com/SifG22/brasa";
 
 pub struct KnowledgePageView {
     page: PageType<Self>,

@@ -6884,14 +6884,6 @@ impl Workspace {
         ctx.notify();
     }
 
-    fn join_slack(&mut self, ctx: &mut ViewContext<Self>) {
-        ctx.open_url(links::SLACK_URL);
-    }
-
-    fn view_user_docs(&mut self, ctx: &mut ViewContext<Self>) {
-        ctx.open_url(links::USER_DOCS_URL);
-    }
-
     fn view_latest_changelog(&mut self, ctx: &mut ViewContext<Self>) {
         self.update_toast_stack.update(ctx, |stack, ctx| {
             stack.clear_toasts(ctx);
@@ -7296,7 +7288,7 @@ impl Workspace {
                 },
             ),
             NewSessionMenuItem::OpenLaunchConfigDocs => {
-                ctx.open_url("https://docs.warp.dev/terminal/sessions/launch-configurations")
+                ctx.open_url("https://github.com/SifG22/brasa")
             }
             #[cfg(feature = "local_fs")]
             NewSessionMenuItem::CreateNewTabConfig => {
@@ -9379,7 +9371,7 @@ impl Workspace {
             let message = format!("Installed the Oz CLI globally. You can now run '{command_name}' from any terminal outside of Brasa.");
             let toast = DismissibleToast::success(message).with_link(
                 ToastLink::new("Learn more".to_string())
-                    .with_href("https://docs.warp.dev/reference/cli".to_string()),
+                    .with_href("https://github.com/SifG22/brasa".to_string()),
             );
             view.handle_cli_command_result(result, toast, "Failed to install Oz command", ctx);
         });
@@ -10071,9 +10063,6 @@ impl Workspace {
                 .with_on_select_action(WorkspaceAction::ToggleKeybindingsPage)
                 .into_item(),
             MenuItem::Separator,
-            MenuItemFields::new("Documentation")
-                .with_on_select_action(WorkspaceAction::ViewUserDocs)
-                .into_item(),
             MenuItemFields::new("Feedback")
                 .with_on_select_action(WorkspaceAction::SendFeedback)
                 .into_item(),
@@ -10086,56 +10075,6 @@ impl Workspace {
                 .into_item(),
         );
 
-        items.extend([
-            MenuItemFields::new("Join our Slack community")
-                .with_on_select_action(WorkspaceAction::JoinSlack)
-                .into_item(),
-            MenuItem::Separator,
-        ]);
-
-        if self.auth_state.is_anonymous_or_logged_out() {
-            items.push(
-                MenuItemFields::new("Sign up")
-                    .with_on_select_action(WorkspaceAction::SignupAnonymousUser)
-                    .into_item(),
-            );
-        }
-
-        // Check if the user is on any paid plan to determine whether to show "Billing and Usage" or "Upgrade"
-        let is_on_paid_plan = UserWorkspaces::as_ref(app)
-            .current_workspace()
-            .map(|workspace| workspace.billing_metadata.is_user_on_paid_plan())
-            .unwrap_or(false);
-
-        if is_on_paid_plan {
-            items.push(
-                MenuItemFields::new("Billing and usage")
-                    .with_on_select_action(WorkspaceAction::ShowSettingsPage(
-                        SettingsSection::BillingAndUsage,
-                    ))
-                    .into_item(),
-            );
-        } else {
-            items.push(
-                MenuItemFields::new("Upgrade")
-                    .with_on_select_action(WorkspaceAction::ShowUpgrade)
-                    .into_item(),
-            );
-        }
-
-        items.push(
-            MenuItemFields::new("Invite a friend")
-                .with_on_select_action(WorkspaceAction::ShowReferralSettingsPage)
-                .into_item(),
-        );
-
-        if !self.auth_state.is_anonymous_or_logged_out() {
-            items.push(
-                MenuItemFields::new("Log out")
-                    .with_on_select_action(WorkspaceAction::LogOut)
-                    .into_item(),
-            );
-        }
         items
     }
 
@@ -12760,9 +12699,7 @@ impl Workspace {
     }
 
     pub fn open_autoupdate_failure_link(&mut self, ctx: &mut ViewContext<Self>) {
-        ctx.open_url(
-            "https://docs.warp.dev/support-and-community/troubleshooting-and-support/updating-warp",
-        );
+        ctx.open_url("https://github.com/SifG22/brasa");
     }
 
     pub fn add_terminal_tab(&mut self, hide_homepage: bool, ctx: &mut ViewContext<Self>) {
@@ -21310,7 +21247,7 @@ impl Workspace {
                 .with_main_axis_size(MainAxisSize::Max);
             let bg_color = blended_colors::neutral_1(appearance.theme());
 
-            // Left: Warp logo - clickable to link to warp.dev
+            // Left: Warp logo - clickable to link to https://github.com/SifG22/brasa
             let warp_logo = Hoverable::new(self.mouse_states.warp_logo.clone(), |_state| {
                 ConstrainedBox::new(
                     warp_core::ui::Icon::Warp
@@ -21322,7 +21259,9 @@ impl Workspace {
                 .finish()
             })
             .on_click(|ctx, _, _| {
-                ctx.dispatch_typed_action(WorkspaceAction::OpenLink("https://warp.dev".to_owned()));
+                ctx.dispatch_typed_action(WorkspaceAction::OpenLink(
+                    "https://github.com/SifG22/brasa".to_owned(),
+                ));
             })
             .with_cursor(Cursor::PointingHand)
             .finish();
@@ -24252,7 +24191,7 @@ impl Workspace {
 
         if !is_app_installed {
             // App not installed - redirect to download page
-            ctx.open_url("https://warp.dev/download");
+            ctx.open_url("https://github.com/SifG22/brasa");
             // In webapp code we cannot distinguish between
             // the localhost:9277/install_detection endpoint not running (not installed) vs
             // the browser blocking Local Network Access which results in CORS error;
@@ -24858,8 +24797,6 @@ impl TypedActionView for Workspace {
             ShowReferralSettingsPage => {
                 self.show_settings_with_section(Some(SettingsSection::Referrals), ctx);
             }
-            JoinSlack => self.join_slack(ctx),
-            ViewUserDocs => self.view_user_docs(ctx),
             ViewLatestChangelog => self.view_latest_changelog(ctx),
             ViewPrivacyPolicy => self.view_privacy_policy(ctx),
             SendFeedback => self.send_feedback(ctx),
@@ -25782,7 +25719,7 @@ impl TypedActionView for Workspace {
             #[cfg(all(enable_crash_recovery, target_os = "linux"))]
             DismissWaylandCrashRecoveryBannerAndOpenLink => {
                 self.dismiss_workspace_banner(ctx, &WorkspaceBanner::WaylandCrashRecovery);
-                ctx.open_url("https://docs.warp.dev/terminal/more-features/linux#native-wayland");
+                ctx.open_url("https://github.com/SifG22/brasa");
             }
             FixInAgentMode { query } => {
                 self.active_tab_pane_group().update(ctx, |pane_group, ctx| {

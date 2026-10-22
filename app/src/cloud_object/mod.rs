@@ -813,7 +813,7 @@ pub fn extract_server_id_and_object_type_from_warp_drive_link(
 
     let object_type = url.path_segments().and_then(|mut segments| segments.nth(1));
 
-    // Parse the object portion of the path segment (warp.dev/drive/{object})
+    // Parse the object portion of the path segment (https://github.com/SifG22/brasa)
     // into an object type
     let object_type = match object_type {
         Some("notebook") => ObjectType::Notebook,

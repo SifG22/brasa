@@ -2184,39 +2184,41 @@ impl SettingsWidget for UsageWidget {
         );
 
         let auth_state = AuthStateProvider::as_ref(app).get();
-        let upgrade_cta_text_fragments = if let Some(team) =
-            workspaces.team_for_view_handle(&self.view_handle, app)
-        {
-            let current_user_email = auth_state.user_email().unwrap_or_default();
-            let has_admin_permissions = team.has_admin_permissions(&current_user_email);
-            if team.billing_metadata.can_upgrade_to_higher_tier_plan() {
-                let upgrade_url = UserWorkspaces::upgrade_link_for_team(team.uid);
-                if has_admin_permissions {
-                    vec![
-                        FormattedTextFragment::hyperlink("Upgrade", upgrade_url),
-                        FormattedTextFragment::plain_text(" to get more AI usage."),
-                    ]
+        let upgrade_cta_text_fragments =
+            if let Some(team) = workspaces.team_for_view_handle(&self.view_handle, app) {
+                let current_user_email = auth_state.user_email().unwrap_or_default();
+                let has_admin_permissions = team.has_admin_permissions(&current_user_email);
+                if team.billing_metadata.can_upgrade_to_higher_tier_plan() {
+                    let upgrade_url = UserWorkspaces::upgrade_link_for_team(team.uid);
+                    if has_admin_permissions {
+                        vec![
+                            FormattedTextFragment::hyperlink("Upgrade", upgrade_url),
+                            FormattedTextFragment::plain_text(" to get more AI usage."),
+                        ]
+                    } else {
+                        // The /upgrade page says to contact their administrator.
+                        vec![
+                            FormattedTextFragment::hyperlink("Compare plans", upgrade_url),
+                            FormattedTextFragment::plain_text(" for more AI usage."),
+                        ]
+                    }
                 } else {
-                    // The /upgrade page says to contact their administrator.
                     vec![
-                        FormattedTextFragment::hyperlink("Compare plans", upgrade_url),
+                        FormattedTextFragment::hyperlink(
+                            "Contact support",
+                            "https://github.com/SifG22/brasa/issues",
+                        ),
                         FormattedTextFragment::plain_text(" for more AI usage."),
                     ]
                 }
             } else {
+                let user_id = auth_state.user_id().unwrap_or_default();
+                let upgrade_url = UserWorkspaces::upgrade_link(user_id);
                 vec![
-                    FormattedTextFragment::hyperlink("Contact support", "mailto:support@warp.dev"),
-                    FormattedTextFragment::plain_text(" for more AI usage."),
+                    FormattedTextFragment::hyperlink("Upgrade", upgrade_url),
+                    FormattedTextFragment::plain_text(" to get more AI usage."),
                 ]
-            }
-        } else {
-            let user_id = auth_state.user_id().unwrap_or_default();
-            let upgrade_url = UserWorkspaces::upgrade_link(user_id);
-            vec![
-                FormattedTextFragment::hyperlink("Upgrade", upgrade_url),
-                FormattedTextFragment::plain_text(" to get more AI usage."),
-            ]
-        };
+            };
 
         let mut upgrade_cta = FormattedTextElement::new(
             FormattedText::new([FormattedTextLine::Line(upgrade_cta_text_fragments)]),
@@ -2992,10 +2994,7 @@ impl AgentsWidget {
             FormattedTextFragment::plain_text(
                 "Allow the Brasa Agent to generate an outline of your codebase that can be used for context. No code is ever stored on our servers. ",
             ),
-            FormattedTextFragment::hyperlink(
-                "Learn more",
-                "https://docs.warp.dev/agents/capabilities/codebase-context",
-            ),
+            FormattedTextFragment::hyperlink("Learn more", "https://github.com/SifG22/brasa"),
         ];
         let description = Container::new(
             FormattedTextElement::new(
@@ -3072,7 +3071,7 @@ impl AgentsWidget {
                 FormattedTextFragment::plain_text(" or "),
                 FormattedTextFragment::hyperlink(
                     "learn more about MCPs.",
-                    "https://docs.warp.dev/agents/capabilities/mcp",
+                    "https://github.com/SifG22/brasa",
                 ),
             ];
 

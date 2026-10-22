@@ -497,7 +497,7 @@ impl PromptAlertView {
                     } else {
                         text_fragments.push(FormattedTextFragment::hyperlink(
                             CONTACT_SUPPORT_TEXT,
-                            "mailto:support@warp.dev".to_owned(),
+                            "https://github.com/SifG22/brasa/issues".to_owned(),
                         ));
                     }
                 } else {

@@ -277,14 +277,8 @@ impl MainSettingsPageView {
             ctx.notify();
         });
 
-        let mut widgets: Vec<Box<dyn SettingsWidget<View = Self>>> = vec![
-            Box::new(AccountWidget::default()),
-            Box::new(DividerWidget {}),
-        ];
-
-        widgets.push(Box::new(SettingsSyncWidget::default()));
-
-        widgets.push(Box::new(EarnRewardsWidget::default()));
+        // Brasa has no accounts, sync or referrals, so only local-only widgets are shown.
+        let mut widgets: Vec<Box<dyn SettingsWidget<View = Self>>> = vec![];
 
         #[cfg(not(target_family = "wasm"))]
         if IapManager::as_ref(ctx).is_enabled() {
@@ -300,8 +294,6 @@ impl MainSettingsPageView {
         if ChannelState::app_version().is_some() {
             widgets.push(Box::new(VersionInfoWidget::default()));
         }
-
-        widgets.push(Box::new(LogoutWidget::default()));
 
         let page = PageType::new_uncategorized(widgets, Some(PageTitle::new("Account")));
 
@@ -527,7 +519,7 @@ impl AccountWidget {
                             .ui_builder()
                             .link(
                                 "Contact support".into(),
-                                Some("mailto:support@warp.dev".into()),
+                                Some("https://github.com/SifG22/brasa/issues".into()),
                                 None,
                                 self.ui_state_handles.enterprise_contact_us_link.clone(),
                             )
@@ -718,7 +710,7 @@ impl SettingsWidget for SettingsSyncWidget {
         let label_info = AdditionalInfo {
             mouse_state: self.tooltip_state.clone(),
             on_click_action: Some(MainPageAction::OpenUrl(
-                "https://docs.warp.dev/terminal/more-features/settings-sync".into(),
+                "https://github.com/SifG22/brasa".into(),
             )),
             secondary_text: None,
             tooltip_override_text: None,
