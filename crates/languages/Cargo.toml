@@ -1,0 +1,15 @@
+[package]
+name = "languages"
+edition = "2024"
+authors = ["Brasa Team <dev@brasa.invalid>"]
+publish.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_yaml.workspace = true
+rust-embed.workspace = true
+arborium.workspace = true
+lazy_static.workspace = true
+brasa_editor = { path = "../editor" }
+brasa_util.workspace = true

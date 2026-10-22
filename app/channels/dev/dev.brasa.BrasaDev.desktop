@@ -1,0 +1,23 @@
+[Desktop Entry]
+# The version of the desktop entry spec this conforms to.
+Version=1.0
+
+Type=Application
+
+Name=BrasaDev
+GenericName=TerminalEmulator
+
+Exec=brasa-terminal-dev %U
+StartupWMClass=dev.brasa.BrasaDev
+
+Keywords=shell;prompt;command;commandline;cmd;
+
+Icon=dev.brasa.BrasaDev
+
+Categories=System;TerminalEmulator;
+
+# Don't run this application within a terminal.
+Terminal=false
+
+# Register ourselves as the handler for brasadev:// URLs.
+MimeType=x-scheme-handler/brasadev;

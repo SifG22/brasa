@@ -1,0 +1,10 @@
+[workspace]
+members = [
+    "workflow-types",
+    "workflows",
+]
+
+[workspace.package]
+authors = ["Brasa Team <dev@brasa.invalid>"]
+license = "Apache-2.0"
+publish = false

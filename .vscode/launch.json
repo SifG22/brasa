@@ -1,0 +1,151 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "attach",
+      "name": "Debug already-running process",
+      "pid": "${command:pickMyProcess}",
+      "sourceLanguages": ["rust"]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'brasa'",
+      "cargo": {
+        "args": ["build", "--bin=brasa"],
+        "filter": {
+          "name": "brasa",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "sourceLanguages": ["rust"]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug MacOS executable",
+      "preLaunchTask": "build_brasalocal",
+      "program": "${workspaceFolder}/target/debug/bundle/osx/BrasaLocal.app/Contents/MacOS/brasa",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "sourceLanguages": ["rust"]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'brasa' with fast_dev",
+      "cargo": {
+        "args": ["build", "--bin=brasa", "--features=fast_dev"],
+        "filter": {
+          "name": "brasa",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "sourceLanguages": ["rust"]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'brasa' with with_local_server",
+      "cargo": {
+        "args": ["build", "--bin=brasa", "--features=with_local_server"],
+        "filter": {
+          "name": "brasa",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "sourceLanguages": ["rust"]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug MacOS executable local session sharing server",
+      "preLaunchTask": "build_brasalocal_localsessionsharing",
+      "program": "${workspaceFolder}/target/debug/bundle/osx/BrasaLocal.app/Contents/MacOS/brasa",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "sourceLanguages": ["rust"]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug MacOS executable with fast_dev",
+      "env": {
+        "RUST_BACKTRACE": "1"
+      },
+      "preLaunchTask": "build_brasalocal_fastdev",
+      "program": "${workspaceFolder}/target/debug/bundle/osx/BrasaLocal.app/Contents/MacOS/brasa",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "sourceLanguages": ["rust"]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug MacOS executable with fast_dev + local session sharing server",
+      "preLaunchTask": "build_brasalocal_fastdev_localsessionsharing",
+      "program": "${workspaceFolder}/target/debug/bundle/osx/BrasaLocal.app/Contents/MacOS/brasa",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "sourceLanguages": ["rust"]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'brasa'",
+      "cargo": {
+        "args": ["test", "--no-run", "--bin=brasa", "--package=brasa"],
+        "filter": {
+          "name": "brasa",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "sourceLanguages": ["rust"]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug integration tests in executable 'integration'",
+      "cargo": {
+        "args": ["build", "--bin=integration", "--package=brasa"],
+        "env": {
+          "BRASAUI_USE_REAL_DISPLAY_IN_INTEGRATION_TESTS": "1"
+        },
+        "filter": {
+          "name": "integration",
+          "kind": "bin"
+        }
+      },
+      "args": ["test_waterfall_input"],
+      "cwd": "${workspaceFolder}",
+      "sourceLanguages": ["rust"]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'brasaui'",
+      "cargo": {
+        "args": ["test", "--no-run", "--lib", "--package=brasaui"],
+        "filter": {
+          "name": "brasaui",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "sourceLanguages": ["rust"]
+    }
+  ]
+}

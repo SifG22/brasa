@@ -1,0 +1,25 @@
+[package]
+name = "syntax_tree"
+version = "0.1.0"
+edition = "2024"
+authors = ["Brasa Team <dev@brasa.invalid>"]
+publish.workspace = true
+license.workspace = true
+
+[dependencies]
+rangemap.workspace = true
+arborium.workspace = true
+brasaui_core.workspace = true
+brasa_editor.workspace = true
+languages.workspace = true
+futures.workspace = true
+futures-lite.workspace = true
+parking_lot.workspace = true
+log.workspace = true
+string-offset.workspace = true
+streaming-iterator = "0.1.9"
+brasa_util.workspace = true
+
+[dev-dependencies]
+brasa_editor = { workspace = true, features = ["test-util"] }
+brasaui = { workspace = true, features = ["test-util"] }

@@ -1,0 +1,30 @@
+[package]
+name = "brasa_files"
+version = "0.1.0"
+edition = "2024"
+authors = ["Brasa Team <dev@brasa.invalid>"]
+publish.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow = "1.0"
+async-channel.workspace = true
+async-fs.workspace = true
+futures.workspace = true
+thiserror.workspace = true
+brasaui_core.workspace = true
+remote_server.workspace = true
+brasa_core.workspace = true
+brasa_util.workspace = true
+watcher.workspace = true
+notify-debouncer-full.workspace = true
+repo_metadata.workspace = true
+log.workspace = true
+same-file = "1.0"
+
+[features]
+test-util = []
+
+[dev-dependencies]
+async-channel.workspace = true
+tempfile.workspace = true

@@ -1,0 +1,23 @@
+[Desktop Entry]
+# The version of the desktop entry spec this conforms to.
+Version=1.0
+
+Type=Application
+
+Name=BrasaOss
+GenericName=TerminalEmulator
+
+Exec=brasa-terminal-oss %U
+StartupWMClass=dev.brasa.BrasaOss
+
+Keywords=shell;prompt;command;commandline;cmd;
+
+Icon=dev.brasa.BrasaOss
+
+Categories=System;TerminalEmulator;
+
+# Don't run this application within a terminal.
+Terminal=false
+
+# Register ourselves as the handler for brasaoss:// URLs.
+MimeType=x-scheme-handler/brasaoss;

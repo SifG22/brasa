@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Build and push the base development image for Brasa cloud agents.
+# The image supports both x86-64 and AArch64.
+
+exec docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --tag SifG22/brasa-internal-dev:latest-dev \
+  --push \
+  --provenance=mode=max --sbom=true \
+  --file docker/agent-dev/Dockerfile .

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Brasa — maqueta de diseño</title>
+<style>
+  :root {
+    --bg: #141110; --surface: #1c1715; --surface-2: #241e1b; --line: #2f2724;
+    --text: #efe6e1; --muted: #a8978d; --ember: #f97316; --ember-soft: #f9731622;
+    --ok: #4ade80; --err: #f87171; --mono: "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+  }
+  .light {
+    --bg: #faf7f4; --surface: #f3ede8; --surface-2: #ebe3dc; --line: #ddd2c9;
+    --text: #1f1a17; --muted: #75665d; --ember: #ea580c; --ember-soft: #ea580c1a;
+    --ok: #15803d; --err: #dc2626;
+  }
+  body { margin: 0; padding: 24px; background: #0b0908; font: 14px/1.4 "Segoe UI Variable", "Segoe UI", system-ui, sans-serif; color: #eee; }
+  h1 { font-size: 20px; margin: 0 0 4px; } p.sub { margin: 0 0 20px; color: #aaa; }
+  .row { display: flex; gap: 24px; flex-wrap: wrap; }
+  .win { width: 760px; height: 520px; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: grid; grid-template-columns: 196px 1fr; grid-template-rows: 40px 1fr 26px; box-shadow: 0 20px 60px #0008; }
+  .title { grid-column: 1 / 3; display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .title img { width: 20px; height: 20px; }
+  .crumbs { color: var(--muted); font-size: 13px; } .crumbs b { color: var(--text); font-weight: 600; }
+  .spacer { flex: 1; }
+  .btn { border: 1px solid var(--line); background: var(--surface-2); color: var(--text); border-radius: 8px; padding: 4px 10px; font-size: 12px; }
+  .btn.claude { background: var(--ember); border-color: var(--ember); color: #fff; font-weight: 600; }
+  .side { background: var(--surface); border-right: 1px solid var(--line); padding: 10px 8px; display: flex; flex-direction: column; gap: 4px; }
+  .side h4 { margin: 6px 6px 4px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .tab { padding: 7px 8px; border-radius: 8px; display: grid; grid-template-columns: 10px 1fr; gap: 2px 8px; align-items: center; }
+  .tab.on { background: var(--ember-soft); box-shadow: inset 2px 0 0 var(--ember); }
+  .tab .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .tab .dot.run { background: var(--ember); box-shadow: 0 0 8px var(--ember); }
+  .tab .dot.ok { background: var(--ok); }
+  .tab small { grid-column: 2; color: var(--muted); font-size: 11px; }
+  .new { margin-top: auto; color: var(--muted); font-size: 12px; padding: 6px 8px; }
+  .main { display: flex; flex-direction: column; min-width: 0; }
+  .blocks { flex: 1; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+  .blk { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--ok); border-radius: 8px; overflow: hidden; }
+  .blk.err { border-left-color: var(--err); }
+  .blk.claude { border-left-color: var(--ember); }
+  .bh { display: flex; gap: 8px; align-items: center; padding: 6px 10px; font: 12.5px var(--mono); }
+  .bh .cmd { color: var(--text); } .bh .meta { margin-left: auto; color: var(--muted); font-family: inherit; font-size: 11px; }
+  .bh .act { color: var(--ember); font: 600 11px "Segoe UI", sans-serif; border: 1px solid var(--ember); border-radius: 6px; padding: 1px 6px; }
+  .bo { padding: 6px 10px 8px; font: 12px/1.5 var(--mono); color: var(--muted); border-top: 1px solid var(--line); white-space: pre; }
+  .bo .e { color: var(--err); } .bo .c { color: var(--ember); }
+  .input { margin: 0 14px 12px; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 8px 12px; }
+  .chips { display: flex; gap: 6px; margin-bottom: 6px; }
+  .chip { font-size: 11px; color: var(--muted); background: var(--surface-2); border-radius: 999px; padding: 1px 8px; }
+  .chip.g { color: var(--ok); }
+  .prompt { font: 13px var(--mono); } .prompt .p { color: var(--ember); } .caret { display: inline-block; width: 8px; height: 15px; background: var(--ember); vertical-align: -2px; box-shadow: 0 0 8px var(--ember); }
+  .status { grid-column: 1 / 3; display: flex; gap: 16px; align-items: center; padding: 0 12px; font-size: 11px; color: var(--muted); background: var(--surface); border-top: 1px solid var(--line); }
+  .status .live { color: var(--ember); }
+  ul { color: #ccc; max-width: 1560px; }
+</style>
+
+<h1>Brasa — propuesta de diseño</h1>
+<p class="sub">Carbón cálido + acento brasa. Pestañas en un carril lateral, bloques como tarjetas, Claude a un clic. Oscuro (izquierda) y claro (derecha).</p>
+
+<div class="row">
+  <div class="win" id="dark"></div>
+  <div class="win light" id="light"></div>
+</div>
+
+<ul>
+  <li><b>Barra superior</b>: logo, ruta actual en migas de pan (clic para saltar a una carpeta) y el botón <b>Claude</b> (abre Claude Code en esa carpeta, <code>Ctrl+Mayús+C</code>).</li>
+  <li><b>Carril lateral</b> con las sesiones: nombre, carpeta y estado (gris inactiva, brasa = trabajando, verde = terminó). Las sesiones de Claude Code se marcan solas.</li>
+  <li><b>Bloques como tarjetas</b> con una franja de color (verde bien, rojo error, brasa Claude), duración, y en los errores el botón <b>Explicar con Claude</b>.</li>
+  <li><b>Entrada</b> redondeada con chips (carpeta, rama git) y un cursor-brasa que brilla, como el logo.</li>
+  <li><b>Barra de estado</b>: shell, rama, estado de Claude y tema. Tipografía Segoe UI Variable + Cascadia Code (las de Windows, cero carga).</li>
+</ul>
+
+<template id="tpl">
+  <div class="title">
+    <img src="brasa.svg" alt="">
+    <span class="crumbs">C:\ › Users › rodri › <b>effectcraft</b></span>
+    <span class="spacer"></span>
+    <span class="btn">Buscar  Ctrl+K</span>
+    <span class="btn claude">✦ Claude</span>
+    <span class="btn">⚙</span>
+  </div>
+  <div class="side">
+    <h4>Sesiones</h4>
+    <div class="tab on"><span class="dot run"></span>Claude Code<small>effectcraft · pensando…</small></div>
+    <div class="tab"><span class="dot ok"></span>PowerShell<small>effectcraft · listo</small></div>
+    <div class="tab"><span class="dot"></span>cargo run<small>terminal</small></div>
+    <span class="new">＋ Nueva sesión  Ctrl+T</span>
+  </div>
+  <div class="main">
+    <div class="blocks">
+      <div class="blk"><div class="bh"><span class="cmd">❯ git status</span><span class="meta">0,1 s · ✓</span></div><div class="bo">On branch main
+nothing to commit, working tree clean</div></div>
+      <div class="blk err"><div class="bh"><span class="cmd">❯ cargo build</span><span class="act">Explicar con Claude</span><span class="meta">12,4 s · ✗</span></div><div class="bo"><span class="e">error[E0308]: mismatched types</span>
+  --> src/main.rs:14:9</div></div>
+      <div class="blk claude"><div class="bh"><span class="cmd">✦ claude</span><span class="meta">sesión · 3 min</span></div><div class="bo"><span class="c">● Leyendo src/main.rs…</span>
+  Corrijo el tipo en la línea 14 y vuelvo a compilar.</div></div>
+    </div>
+    <div class="input">
+      <div class="chips"><span class="chip">~/effectcraft</span><span class="chip g">⎇ main</span></div>
+      <div class="prompt"><span class="p">❯</span> cargo test <span class="caret"></span></div>
+    </div>
+  </div>
+  <div class="status"><span>PowerShell 7</span><span>⎇ main</span><span class="live">✦ Claude: trabajando</span><span class="spacer"></span><span>Tema: Brasa oscuro</span></div>
+</template>
+<script>
+  for (const id of ["dark", "light"]) document.getElementById(id).append(document.getElementById("tpl").content.cloneNode(true));
+</script>
+</html>
