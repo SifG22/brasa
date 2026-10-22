@@ -132,9 +132,15 @@ jobs:
           cp dist/Brasa-Setup-*-x64.exe dist/Brasa-Setup-x64.exe
           cp dist/Brasa-Setup-*-arm64.exe dist/Brasa-Setup-arm64.exe
       - name: Publish
+        # Si la release ya existe (re-ejecucion o creada a mano), se reemplazan sus archivos.
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" dist/* --repo "${GITHUB_REPOSITORY}" \
-            --title "Brasa ${GITHUB_REF_NAME}" \
-            --notes "Brasa ${GITHUB_REF_NAME} para Windows, por SifG22 (https://sifg.net). Descarga el instalador de tu PC: Brasa-Setup-x64 (Intel o AMD, la mayoria) o Brasa-Setup-arm64 (Snapdragon). Gratis y sin cuenta. Basado en Warp (warpdotdev/warp), licencia AGPLv3: el codigo fuente esta en este repositorio."
+          title="Brasa ${GITHUB_REF_NAME}"
+          notes="Brasa ${GITHUB_REF_NAME} para Windows, por SifG22 (https://sifg.net). Descarga el instalador de tu PC: Brasa-Setup-x64 (Intel o AMD, la mayoria) o Brasa-Setup-arm64 (Snapdragon). Gratis y sin cuenta. Basado en Warp (warpdotdev/warp), licencia AGPLv3: el codigo fuente esta en este repositorio."
+          if gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" > /dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" dist/* --repo "${GITHUB_REPOSITORY}" --clobber
+            gh release edit "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --title "$title" --notes "$notes" --draft=false
+          else
+            gh release create "${GITHUB_REF_NAME}" dist/* --repo "${GITHUB_REPOSITORY}" --title "$title" --notes "$notes"
+          fi
