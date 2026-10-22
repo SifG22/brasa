@@ -1,7 +1,7 @@
 # Brasa para Windows: compila x64 y ARM64, genera los instaladores y los publica en una GitHub
 # Release con el aviso de actualizacion latest.json que lee la app.
 #
-# Se lanza al subir una etiqueta de version (git tag v0.0.1 && git push origin v0.0.1) o a mano
+# Se lanza al subir una etiqueta de version (git tag v0.0.2 && git push origin v0.0.2) o a mano
 # desde la pestana Actions ("Run workflow": solo compila y deja los instaladores como artefactos).
 # ARM64 se compila en cruzado en la maquina x64 (clang-cl viene instalado en windows-latest).
 name: Release
