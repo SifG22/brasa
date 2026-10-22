@@ -1,0 +1,140 @@
+# Brasa para Windows: compila x64 y ARM64, genera los instaladores y los publica en una GitHub
+# Release con el aviso de actualizacion latest.json que lee la app.
+#
+# Se lanza al subir una etiqueta de version (git tag v0.0.1 && git push origin v0.0.1) o a mano
+# desde la pestana Actions ("Run workflow": solo compila y deja los instaladores como artefactos).
+# ARM64 se compila en cruzado en la maquina x64 (clang-cl viene instalado en windows-latest).
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            triple: x86_64-pc-windows-msvc
+          - arch: arm64
+            triple: aarch64-pc-windows-msvc
+    runs-on: windows-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust toolchain
+        shell: pwsh
+        run: |
+          rustup toolchain install
+          rustup target add ${{ matrix.triple }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: brasa-${{ matrix.triple }}
+      - uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check the tag matches VERSION
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $v = (Get-Content VERSION -TotalCount 1).Trim()
+          if ("v$v" -ne "${{ github.ref_name }}") { throw "La etiqueta ${{ github.ref_name }} no coincide con VERSION = $v" }
+      - name: Build and package
+        shell: pwsh
+        run: |
+          if ("${{ matrix.arch }}" -eq "arm64") {
+            $clang = "C:\Program Files\LLVM\bin\clang-cl.exe"
+            if (-not (Test-Path $clang)) { throw "clang-cl not found at $clang" }
+            $env:CC_aarch64_pc_windows_msvc = $clang
+            $env:AWS_LC_SYS_CC = $clang
+          }
+          script/brasa/empaquetar.ps1 -Arch ${{ matrix.arch }} -Instalador -BaseUrl "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}"
+          Move-Item dist/latest.json dist/latest-${{ matrix.arch }}.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: brasa-windows-${{ matrix.arch }}
+          path: |
+            dist/Brasa-Setup-*
+            dist/latest-*.json
+
+  # Installs each installer on a machine of its architecture, checks the installed exe is built
+  # for it and that Brasa starts and stays up. Nothing is published unless both pass.
+  verify:
+    needs: windows
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: windows-latest
+            machine: "0x8664"
+          - arch: arm64
+            runner: windows-11-arm
+            machine: "0xAA64"
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: brasa-windows-${{ matrix.arch }}
+          path: dist
+      - name: Install, check and start
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $setup = Get-ChildItem dist -Filter "Brasa-Setup-*-${{ matrix.arch }}.exe" | Select-Object -First 1
+          if (-not $setup) { throw "no ${{ matrix.arch }} installer" }
+          $p = Start-Process $setup.FullName -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/CURRENTUSER" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "the installer failed with exit code $($p.ExitCode)" }
+          $exe = Join-Path $env:LOCALAPPDATA "Programs\Brasa\brasa.exe"
+          if (-not (Test-Path $exe)) { throw "brasa.exe was not installed at $exe" }
+          $bytes = [System.IO.File]::ReadAllBytes($exe)
+          $pe = [BitConverter]::ToInt32($bytes, 0x3C)
+          $machine = [BitConverter]::ToUInt16($bytes, $pe + 4)
+          if ($machine -ne [Convert]::ToUInt16("${{ matrix.machine }}", 16)) { throw ("brasa.exe is for machine 0x{0:X}, not ${{ matrix.arch }}" -f $machine) }
+          "brasa.exe is ${{ matrix.arch }} (machine 0x{0:X})" -f $machine
+          $env:BRASA_NO_UPDATE = "1"
+          $app = Start-Process $exe -PassThru
+          Start-Sleep -Seconds 20
+          if ($app.HasExited) { throw "Brasa exited with code $($app.ExitCode)" }
+          "Brasa is running"
+          Stop-Process -Id $app.Id -Force
+
+  release:
+    needs: [windows, verify]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Merge latest.json
+        # Un solo aviso para las dos arquitecturas, con las novedades de esta version sacadas de
+        # NOVEDADES.md si las hay.
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          notes=$(tr -d '\r' < NOVEDADES.md 2>/dev/null | awk -v v="## $version" '$0==v{f=1;next} /^## /{f=0} f' | sed '/^$/d' | head -c 600)
+          jq -s --arg notes "$notes" '(.[0] * .[1]) | .notes = $notes' dist/latest-x64.json dist/latest-arm64.json > dist/latest.json
+          rm dist/latest-x64.json dist/latest-arm64.json
+          cat dist/latest.json
+      - name: Version-less copies
+        # Nombres fijos para enlazar siempre a la ultima version:
+        # https://github.com/<repo>/releases/latest/download/Brasa-Setup-x64.exe
+        run: |
+          cp dist/Brasa-Setup-*-x64.exe dist/Brasa-Setup-x64.exe
+          cp dist/Brasa-Setup-*-arm64.exe dist/Brasa-Setup-arm64.exe
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/* --repo "${GITHUB_REPOSITORY}" \
+            --title "Brasa ${GITHUB_REF_NAME}" \
+            --notes "Brasa ${GITHUB_REF_NAME} para Windows, por SifG22 (https://sifg.net). Descarga el instalador de tu PC: Brasa-Setup-x64 (Intel o AMD, la mayoria) o Brasa-Setup-arm64 (Snapdragon). Gratis y sin cuenta. Basado en Warp (warpdotdev/warp), licencia AGPLv3: el codigo fuente esta en este repositorio."
