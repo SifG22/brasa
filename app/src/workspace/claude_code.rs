@@ -20,8 +20,8 @@ pub(crate) fn claude_code_command(cwd: Option<&Path>, prompt_file: Option<&Path>
     command.push_str("claude");
     if let Some(file) = prompt_file.and_then(quotable) {
         command.push_str(&format!(
-            " 'Lee el archivo {file}: tiene un comando que ha fallado en mi terminal y su salida. \
-             Explícame en español qué ha pasado y arréglalo.'"
+            " 'Lee el archivo {file}: tiene un comando de mi terminal y su salida. \
+             Explícame en español qué ha pasado y, si algo ha fallado, arréglalo.'"
         ));
     }
     command
@@ -31,7 +31,7 @@ fn quotable(path: &Path) -> Option<&str> {
     path.to_str().filter(|path| !path.contains('\''))
 }
 
-/// The message for Claude Code about a failed `command` and its `output`.
+/// The message for Claude Code about a `command` (usually one that failed) and its `output`.
 pub(crate) fn fix_with_claude_prompt(command: &str, output: &str) -> String {
     let output = output.trim_end();
     let skip = output.chars().count().saturating_sub(MAX_OUTPUT_CHARS);
@@ -42,7 +42,7 @@ pub(crate) fn fix_with_claude_prompt(command: &str, output: &str) -> String {
         ""
     };
     format!(
-        "Este comando ha fallado en mi terminal:\n\n```\n{}\n```\n\nSalida:\n{cut_note}\n```\n{tail}\n```\n",
+        "Comando de mi terminal:\n\n```\n{}\n```\n\nSalida:\n{cut_note}\n```\n{tail}\n```\n",
         command.trim()
     )
 }
@@ -78,7 +78,7 @@ pub(crate) fn local_models() -> LocalModels {
             LocalModels::Installed(parse_ollama_list(&String::from_utf8_lossy(&output.stdout)))
         }
         Err(err) if err.kind() == io::ErrorKind::NotFound => LocalModels::NotInstalled,
-        // Ollama is there but did not answer (for example, its service is stopped).
+        // Ollama could not be started for another reason; `ollama run` will show why.
         Err(_) => LocalModels::Installed(Vec::new()),
     }
 }
@@ -130,12 +130,13 @@ pub(crate) fn local_ai_command(
     command
 }
 
-/// The message for the local AI about a failed `command` and its `output`. Small models need the
-/// task spelled out, so it goes first.
+/// The message for the local AI about a `command` (usually one that failed) and its `output`.
+/// Small models need the task spelled out, so it goes first.
 pub(crate) fn explain_with_local_ai_prompt(command: &str, output: &str) -> String {
     format!(
         "Eres un experto en terminales y programación. Explica en español, de forma breve y \
-         clara, por qué ha fallado este comando y qué hay que hacer para arreglarlo.\n\n{}",
+         clara, qué ha pasado con este comando. Si ha fallado, di por qué y qué hay que hacer \
+         para arreglarlo.\n\n{}",
         fix_with_claude_prompt(command, output)
     )
 }

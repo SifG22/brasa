@@ -6721,7 +6721,9 @@ impl Workspace {
                 );
             }
             FileTarget::SystemDefault => {
-                crate::util::file::open_file_path_with_editor(line_col, path.clone(), None, ctx);
+                // Text files go to Brasa Code when it is installed.
+                let editor = crate::util::file::preferred_default_editor(ctx);
+                crate::util::file::open_file_path_with_editor(line_col, path.clone(), editor, ctx);
             }
             FileTarget::SystemGeneric => {
                 ctx.open_file_path(&path);
@@ -30193,7 +30195,7 @@ fn set_opencode_brasa_plugin(new_entry: &str) -> String {
 }
 
 /// Where to get Brasa Code when it is not installed.
-const BRASA_CODE_DOWNLOAD_URL: &str = "https://github.com/SifG22/brasa-code/releases/latest";
+const BRASA_CODE_DOWNLOAD_URL: &str = "https://www.sifg.net/productos/brasa";
 
 /// Whether Brasa Code is installed on this computer.
 fn brasa_code_installed() -> bool {

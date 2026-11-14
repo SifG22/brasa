@@ -164,7 +164,9 @@ impl Editor {
 
     fn executable_location_method(&self) -> Option<ExecutableLocationMethod> {
         match self {
-            Editor::BrasaCode => Some(ExecutableLocationMethod::DisplayIcon),
+            Editor::BrasaCode => Some(ExecutableLocationMethod::InstallLocation {
+                path_to_executable: PathBuf::from("Brasa Code.exe"),
+            }),
             Editor::VSCode => Some(ExecutableLocationMethod::InstallLocation {
                 path_to_executable: Path::new("bin").join("code.exe"),
             }),

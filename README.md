@@ -100,7 +100,7 @@ Ollama descarga la primera vez. Si Ollama no está instalado, Brasa abre su pág
 
 ### Brasa Code
 
-Brasa y [Brasa Code](https://github.com/SifG22/brasa-code) están hechos para ir juntos. Si tienes
+Brasa y [Brasa Code](https://www.sifg.net/productos/brasa) están hechos para ir juntos. Si tienes
 Brasa Code instalado, los archivos que abres desde la terminal (por ejemplo, la ruta de un error)
 se abren en él, en la línea exacta. El botón de la barra superior abre en Brasa Code la carpeta en
 la que estás; si aún no lo tienes, te lleva a descargarlo.

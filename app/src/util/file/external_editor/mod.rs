@@ -313,8 +313,9 @@ pub fn open_file_path_in_external_editor(
     open_file_path_with_editor(line_column_number, full_path, editor, ctx);
 }
 
-/// The editor to use when the user has not picked one: Brasa Code if it is installed.
-fn preferred_default_editor(ctx: &mut AppContext) -> Option<Editor> {
+/// The editor to use for text files when the user has not picked one: Brasa Code if it is
+/// installed, otherwise none (the system default).
+pub fn preferred_default_editor(ctx: &mut AppContext) -> Option<Editor> {
     #[cfg(windows)]
     if Editor::BrasaCode.is_installed(ctx) {
         return Some(Editor::BrasaCode);

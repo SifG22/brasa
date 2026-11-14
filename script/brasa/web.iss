@@ -41,30 +41,31 @@ OutputBaseFilename=Brasa-Setup
 SetupIconFile=..\..\brand\icon\icon.ico
 
 [Languages]
-Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
-Name: "english"; MessagesFile: "compiler:Default.isl"
+; Los mismos nombres que en brasa.iss, para pasarle el idioma con /LANG.
+Name: "es"; MessagesFile: "compiler:Languages\Spanish.isl"
+Name: "en"; MessagesFile: "compiler:Default.isl"
 
 [Messages]
-spanish.ReadyLabel2b=Se descargará la última versión de Brasa para tu PC y se instalará. Es gratis y no necesita cuenta.%n%nPulsa Instalar para continuar.
-english.ReadyLabel2b=Setup will download the latest version of Brasa for your PC and install it. It is free and needs no account.%n%nClick Install to continue.
+es.ReadyLabel2b=Se descargará la última versión de Brasa para tu PC y se instalará. Es gratis y no necesita cuenta.%n%nPulsa Instalar para continuar.
+en.ReadyLabel2b=Setup will download the latest version of Brasa for your PC and install it. It is free and needs no account.%n%nClick Install to continue.
 
 [CustomMessages]
-spanish.Looking=Buscando la última versión...
-english.Looking=Looking for the latest version...
-spanish.Downloading=Descargando Brasa %1...
-english.Downloading=Downloading Brasa %1...
-spanish.Installing=Instalando Brasa %1...
-english.Installing=Installing Brasa %1...
-spanish.Wait=Tarda alrededor de un minuto.
-english.Wait=This takes about a minute.
-spanish.DownloadFailed=No se pudo descargar Brasa. Comprueba tu conexión a internet y vuelve a intentarlo.%n%n%1
-english.DownloadFailed=Brasa could not be downloaded. Check your internet connection and try again.%n%n%1
-spanish.NotFound=La última versión no tiene instalador para este PC (%1).
-english.NotFound=No installer for this PC (%1) was found in the latest version.
-spanish.InstallFailed=La instalación de Brasa no terminó (código %1).
-english.InstallFailed=The installation of Brasa did not finish (code %1).
-spanish.Launch=Abrir Brasa
-english.Launch=Open Brasa
+es.Looking=Buscando la última versión...
+en.Looking=Looking for the latest version...
+es.Downloading=Descargando Brasa %1...
+en.Downloading=Downloading Brasa %1...
+es.Installing=Instalando Brasa %1...
+en.Installing=Installing Brasa %1...
+es.Wait=Tarda alrededor de un minuto.
+en.Wait=This takes about a minute.
+es.DownloadFailed=No se pudo descargar Brasa. Comprueba tu conexión a internet y vuelve a intentarlo.%n%n%1
+en.DownloadFailed=Brasa could not be downloaded. Check your internet connection and try again.%n%n%1
+es.NotFound=La última versión no tiene instalador para este PC (%1).
+en.NotFound=No installer for this PC (%1) was found in the latest version.
+es.InstallFailed=La instalación de Brasa no terminó (código %1).
+en.InstallFailed=The installation of Brasa did not finish (code %1).
+es.Launch=Abrir Brasa
+en.Launch=Open Brasa
 
 [Run]
 Filename: "{code:GetBrasaExe}"; Description: "{cm:Launch}"; Flags: nowait postinstall skipifsilent skipifdoesntexist

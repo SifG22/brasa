@@ -6,7 +6,9 @@ use std::{fs, io};
 use brasa_util::path::is_network_resource;
 use brasa_util::path::{CleanPathResult, LineAndColumnArg};
 
-pub use self::external_editor::{open_file_path_in_external_editor, open_file_path_with_editor};
+pub use self::external_editor::{
+    open_file_path_in_external_editor, open_file_path_with_editor, preferred_default_editor,
+};
 use crate::terminal::ShellLaunchData;
 use crate::terminal::model::grid::grid_handler::{ContainsPoint, Link};
 use crate::terminal::model::index::Point;
