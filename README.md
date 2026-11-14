@@ -34,22 +34,25 @@ qué ha pasado, copiarlo o pedirle ayuda a Claude.
   y ejecute tu proyecto mientras tú sigues en la terminal.
 - **Fix with Claude.** Cuando un comando falla, clic derecho → *Fix with Claude*: Claude Code se
   abre con el comando y el error ya entregados, y te explica y arregla el problema en español.
-- **Diseño propio.** Temas *Brasa Dark* y *Brasa Light* en carbón cálido con acento de brasa,
-  pestañas en un carril lateral y la ruta de la carpeta siempre visible arriba.
+- **IA local, sin internet.** Clic derecho → *Explain with Local AI*: Ollama te explica el error
+  en tu propio PC, gratis y sin cuenta.
+- **Hecha para ir con Brasa Code.** Los archivos que abres desde la terminal van a
+  [Brasa Code](https://github.com/SifG22/brasa-code) si lo tienes, y un botón abre ahí la carpeta.
+- **Diseño propio.** 15 temas Brasa (Dark, Light, Ocean, Midnight, Sakura…), los mismos que
+  en Brasa Code, pestañas en un carril lateral y la ruta de la carpeta siempre visible arriba.
 - **Hecha para Windows.** x64 y ARM64 (Snapdragon), PowerShell, Git Bash y WSL, sin ventanas de
   consola sueltas, con instalador y actualizaciones automáticas.
 
 ## Descarga e instalación
 
-1. Ve a [Releases](https://github.com/SifG22/brasa/releases/latest) y descarga el instalador de tu PC:
-
-   | Tu PC | Instalador |
-   | --- | --- |
-   | Intel o AMD (la mayoría) | `Brasa-Setup-x64.exe` |
-   | Snapdragon / ARM (Surface Pro X, Copilot+ PC…) | `Brasa-Setup-arm64.exe` |
-
+1. Descarga **[Brasa-Setup.exe](https://github.com/SifG22/brasa/releases/latest/download/Brasa-Setup.exe)**.
+   Sirve para cualquier PC: elige solo la versión de tu procesador (Intel/AMD o Snapdragon/ARM)
+   y descarga siempre la última.
 2. Ábrelo. Se instala solo para tu usuario, sin pedir permisos de administrador.
 3. Busca **Brasa** en el menú Inicio.
+
+Si prefieres el instalador completo, en [Releases](https://github.com/SifG22/brasa/releases/latest)
+están `Brasa-Setup-x64.exe` (Intel o AMD) y `Brasa-Setup-arm64.exe` (Snapdragon / ARM).
 
 Brasa comprueba una vez al día si hay versión nueva y te pregunta antes de actualizarse.
 Para usar Claude Code instala antes [Claude Code](https://claude.com/claude-code) (el comando
@@ -86,6 +89,27 @@ scroll.
 <p align="center">
   <img src="brand/capturas/claude-code.png" width="820" alt="Claude Code trabajando dentro de Brasa">
 </p>
+
+### IA local con Ollama
+
+Clic derecho sobre un bloque → **Explain with Local AI** (o **Ask Local AI** si no falló). Brasa
+abre una pestaña con [Ollama](https://ollama.com) y le pasa el comando y su salida para que te lo
+explique en español. Todo pasa en tu PC: no hace falta cuenta ni internet. Si tienes varios
+modelos, Brasa elige uno hecho para código; si no tienes ninguno, usa `qwen2.5-coder:3b`, que
+Ollama descarga la primera vez. Si Ollama no está instalado, Brasa abre su página de descarga.
+
+### Brasa Code
+
+Brasa y [Brasa Code](https://github.com/SifG22/brasa-code) están hechos para ir juntos. Si tienes
+Brasa Code instalado, los archivos que abres desde la terminal (por ejemplo, la ruta de un error)
+se abren en él, en la línea exacta. El botón de la barra superior abre en Brasa Code la carpeta en
+la que estás; si aún no lo tienes, te lleva a descargarlo.
+
+### Temas
+
+Los 15 temas de Brasa Code también están en la terminal: Brasa Dark y Light, Ash, Midnight, Coal,
+Forest, Plum, Sand, Mist, Ocean, Aurora, Neon, Glacier, Sakura y Matcha. Cámbialos en
+**Settings → Appearance**.
 
 ## Ejemplos
 
@@ -137,6 +161,7 @@ la barra superior.
 | Acción | Atajo |
 | --- | --- |
 | Abrir Claude Code en la carpeta actual | Ctrl+Shift+H |
+| Abrir la carpeta en Brasa Code o hablar con la IA local | Desde la paleta de comandos |
 | Nueva pestaña | Ctrl+Shift+T |
 | Dividir el panel a la derecha / abajo | Ctrl+Shift+D / Ctrl+Shift+E |
 | Buscar dentro de un bloque | Ctrl+Shift+F |
@@ -148,7 +173,7 @@ Todos los atajos se pueden cambiar en **Settings → Terminal → Keyboard short
 
 **¿Necesito una cuenta o internet?** No. Brasa no tiene cuentas y no envía nada a ningún
 servidor. Solo usa internet para buscar actualizaciones en este repositorio, y Claude Code
-para hablar con Claude.
+para hablar con Claude. La IA local (Ollama) funciona sin internet.
 
 **¿Cuánto cuesta?** Nada. Brasa es gratis. Claude Code usa tu propia cuenta de Claude.
 
@@ -170,9 +195,9 @@ completa está en [AGENTS.md](AGENTS.md).
 
 ## Licencia y créditos
 
-Brasa es un **trabajo derivado de [Brasa](https://github.com/SifG22/brasa)**
-(SifG22/brasa), un cliente de terminal de código abierto. Brasa no está afiliada a Brasa ni
-respaldada por Brasa; "Brasa" es una marca de sus dueños.
+Brasa es software libre, hecho por SifG22 a partir de un cliente de terminal de código abierto.
+Los avisos de copyright originales se conservan en [LICENSE-AGPL](LICENSE-AGPL) y
+[LICENSE-MIT](LICENSE-MIT).
 
 - El framework de interfaz (crates `brasaui_core` y `brasaui`) se distribuye bajo licencia
   [MIT](LICENSE-MIT).

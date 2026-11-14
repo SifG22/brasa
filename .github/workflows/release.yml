@@ -56,11 +56,20 @@ jobs:
           }
           script/brasa/empaquetar.ps1 -Arch ${{ matrix.arch }} -Instalador -BaseUrl "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}"
           Move-Item dist/latest.json dist/latest-${{ matrix.arch }}.json
+      - name: Universal installer
+        # Brasa-Setup.exe: elige x64 o ARM64 y descarga siempre la ultima version.
+        if: matrix.arch == 'x64'
+        shell: pwsh
+        run: |
+          $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1
+          & $iscc "/DOutDir=$PWD\dist" script\brasa\web.iss
+          if ($LASTEXITCODE -ne 0) { throw 'Inno Setup ha fallado con el instalador universal' }
       - uses: actions/upload-artifact@v4
         with:
           name: brasa-windows-${{ matrix.arch }}
           path: |
             dist/Brasa-Setup-*
+            dist/Brasa-Setup.exe
             dist/latest-*.json
 
   # Installs each installer on a machine of its architecture, checks the installed exe is built
@@ -137,7 +146,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           title="Brasa ${GITHUB_REF_NAME}"
-          notes="Brasa ${GITHUB_REF_NAME} para Windows, por SifG22 (https://sifg.net). Descarga el instalador de tu PC: Brasa-Setup-x64 (Intel o AMD, la mayoria) o Brasa-Setup-arm64 (Snapdragon). Gratis y sin cuenta. Basado en Brasa (SifG22/brasa), licencia AGPLv3: el codigo fuente esta en este repositorio."
+          version="${GITHUB_REF_NAME#v}"
+          changes=$(tr -d '\r' < NOVEDADES.md 2>/dev/null | awk -v v="## $version" '$0==v{f=1;next} /^## /{f=0} f')
+          notes=$(printf '%s\n\n%s\n\n%s' "Brasa ${GITHUB_REF_NAME} para Windows, por SifG22 (https://sifg.net). Descarga **Brasa-Setup.exe**: elige solo tu PC (x64 o ARM64) e instala la ultima version. Gratis y sin cuenta." "$changes" "Licencia AGPLv3: el codigo fuente esta en este repositorio.")
           if gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" > /dev/null 2>&1; then
             gh release upload "${GITHUB_REF_NAME}" dist/* --repo "${GITHUB_REPOSITORY}" --clobber
             gh release edit "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --title "$title" --notes "$notes" --draft=false

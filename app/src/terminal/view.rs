@@ -550,7 +550,7 @@ use crate::view_components::find::{Event as FindEvent, Find, FindDirection, Find
 use crate::view_components::{DismissibleToast, ToastFlavor};
 use crate::workflows::WorkflowSelectionSource;
 use crate::workflows::workflow::Workflow;
-use crate::workspace::claude_code::fix_with_claude_prompt;
+use crate::workspace::claude_code::{explain_with_local_ai_prompt, fix_with_claude_prompt};
 use crate::workspace::sync_inputs::SyncedInputState;
 use crate::workspace::view::cloud_agent_capacity_modal::CloudAgentCapacityModalVariant;
 use crate::workspace::{
@@ -1394,6 +1394,8 @@ pub enum ContextMenuAction {
     CopyBlockFilteredOutputs,
     /// Opens Claude Code with the selected block's command and output.
     FixWithClaude,
+    /// Asks the local AI (Ollama) to explain the selected block's command and output.
+    ExplainWithLocalAi,
     OpenShareBlockModal {
         block_index: BlockIndex,
     },
@@ -1530,6 +1532,7 @@ impl fmt::Debug for ContextMenuAction {
             CopyBlockCommands => f.write_str("CopyBlockCommands"),
             CopyBlockOutputs => f.write_str("CopyBlockOutputs"),
             FixWithClaude => f.write_str("FixWithClaude"),
+            ExplainWithLocalAi => f.write_str("ExplainWithLocalAi"),
             OpenShareBlockModal { block_index } => {
                 write!(f, "OpenShareModal {{ block_index: {block_index} }}")
             }
@@ -17878,6 +17881,18 @@ impl TerminalView {
                             ))
                             .into_item(),
                     );
+                    let local_ai_label = if tail_block.has_failed() {
+                        "Explain with Local AI"
+                    } else {
+                        "Ask Local AI"
+                    };
+                    items.push(
+                        MenuItemFields::new(local_ai_label)
+                            .with_on_select_action(TerminalAction::ContextMenu(
+                                ContextMenuAction::ExplainWithLocalAi,
+                            ))
+                            .into_item(),
+                    );
                 }
 
                 // "Paste" closes out the copy-related section so clipboard actions for
@@ -22334,6 +22349,15 @@ impl TerminalView {
         });
     }
 
+    fn context_menu_explain_with_local_ai(&mut self, ctx: &mut ViewContext<Self>) {
+        let command = self.selected_block_contents_as_string(BlockEntity::Command, "\n", ctx);
+        let output = self.selected_block_contents_as_string(BlockEntity::Output, "\n", ctx);
+        self.close_context_menu(ctx, true);
+        ctx.dispatch_typed_action(&WorkspaceAction::OpenLocalAi {
+            prompt: Some(explain_with_local_ai_prompt(&command, &output)),
+        });
+    }
+
     fn context_menu_copy_filtered_block_outputs(&mut self, ctx: &mut ViewContext<Self>) {
         self.copy_blocks(BlockEntity::FilteredOutput, ctx);
     }
@@ -26127,6 +26151,7 @@ impl TerminalView {
             CopyBlockCommands => self.context_menu_copy_block_commands(ctx),
             CopyBlockOutputs => self.context_menu_copy_block_outputs(ctx),
             FixWithClaude => self.context_menu_fix_with_claude(ctx),
+            ExplainWithLocalAi => self.context_menu_explain_with_local_ai(ctx),
             OpenShareBlockModal { block_index } => {
                 self.context_menu_open_share_block_modal(*block_index, ctx)
             }

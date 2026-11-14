@@ -742,6 +742,19 @@ pub fn init(app: &mut AppContext) {
         .with_key_binding(cmd_or_ctrl_shift("h"))
         .with_enabled(|| ContextFlag::CreateNewSession.is_enabled()),
         EditableBinding::new(
+            "workspace:open_in_brasa_code",
+            BindingDescription::new("Open the current folder in Brasa Code"),
+            WorkspaceAction::OpenInBrasaCode,
+        )
+        .with_context_predicate(id!("Workspace") & !id!("Workspace_PaneDragging")),
+        EditableBinding::new(
+            "workspace:open_local_ai",
+            BindingDescription::new("Chat with the local AI (Ollama) in the current folder"),
+            WorkspaceAction::OpenLocalAi { prompt: None },
+        )
+        .with_context_predicate(id!("Workspace") & !id!("Workspace_PaneDragging"))
+        .with_enabled(|| ContextFlag::CreateNewSession.is_enabled()),
+        EditableBinding::new(
             NEW_TERMINAL_TAB_BINDING_NAME,
             BindingDescription::new("New Terminal Tab"),
             WorkspaceAction::AddTerminalTab {

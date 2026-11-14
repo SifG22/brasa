@@ -16,6 +16,8 @@ use settings::EditorChoice;
 pub use self::settings::{EditorLayout, EditorSettings};
 
 pub const SUPPORTED_EDITORS: &[Editor] = &[
+    #[cfg(windows)]
+    Editor::BrasaCode,
     Editor::VSCode,
     Editor::VSCodeInsiders,
     Editor::Atom,
@@ -72,6 +74,9 @@ pub const SUPPORTED_EDITORS: &[Editor] = &[
 )]
 #[schemars(description = "An external code editor.", rename_all = "snake_case")]
 pub enum Editor {
+    /// Brasa Code, the editor made to go with Brasa. Only built for Windows.
+    #[cfg(windows)]
+    BrasaCode,
     VSCode,
     VSCodeInsiders,
     PyCharm,
@@ -111,6 +116,8 @@ impl std::fmt::Display for Editor {
             f,
             "{}",
             match self {
+                #[cfg(windows)]
+                Editor::BrasaCode => "Brasa Code",
                 Editor::VSCode => "VSCode",
                 Editor::VSCodeInsiders => "VSCode Insiders",
                 Editor::PyCharm => "PyCharm",
@@ -160,6 +167,8 @@ impl TryFrom<&str> for Editor {
             .to_lowercase();
 
         match editor_base.as_str() {
+            #[cfg(windows)]
+            "bscode" => Ok(Editor::BrasaCode),
             "code" => Ok(Editor::VSCode),
             "code-insiders" => Ok(Editor::VSCodeInsiders),
             "zed" => Ok(Editor::Zed),
@@ -273,8 +282,8 @@ pub fn generate_editor_command(
             };
             format!("{editor_cmd} {}", shell_words::quote(&file_with_pos))
         }
-        // VS Code: --goto file:line:column
-        "code" => {
+        // VS Code and Brasa Code: --goto file:line:column
+        "code" | "bscode" => {
             let goto_arg = if let Some(col) = line_and_col.column_num {
                 format!("{}:{}:{}", quoted_path, line_and_col.line_num, col)
             } else {
@@ -297,9 +306,21 @@ pub fn open_file_path_in_external_editor(
 ) {
     let editor = match *EditorSettings::as_ref(ctx).open_file_editor {
         EditorChoice::ExternalEditor(editor) => Some(editor),
+        // With no editor chosen, files go to Brasa Code when it is installed.
+        EditorChoice::SystemDefault => preferred_default_editor(ctx),
         _ => None,
     };
     open_file_path_with_editor(line_column_number, full_path, editor, ctx);
+}
+
+/// The editor to use when the user has not picked one: Brasa Code if it is installed.
+fn preferred_default_editor(ctx: &mut AppContext) -> Option<Editor> {
+    #[cfg(windows)]
+    if Editor::BrasaCode.is_installed(ctx) {
+        return Some(Editor::BrasaCode);
+    }
+    let _ = ctx;
+    None
 }
 
 pub fn open_file_path_with_editor(

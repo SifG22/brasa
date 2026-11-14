@@ -66,6 +66,32 @@ pub enum ThemeKind {
     WillowDream,
     #[schemars(description = "Light")]
     Light,
+    #[schemars(description = "Brasa Ash")]
+    BrasaAsh,
+    #[schemars(description = "Brasa Midnight")]
+    BrasaMidnight,
+    #[schemars(description = "Brasa Coal")]
+    BrasaCoal,
+    #[schemars(description = "Brasa Forest")]
+    BrasaForest,
+    #[schemars(description = "Brasa Plum")]
+    BrasaPlum,
+    #[schemars(description = "Brasa Sand")]
+    BrasaSand,
+    #[schemars(description = "Brasa Mist")]
+    BrasaMist,
+    #[schemars(description = "Brasa Ocean")]
+    BrasaOcean,
+    #[schemars(description = "Brasa Aurora")]
+    BrasaAurora,
+    #[schemars(description = "Brasa Neon")]
+    BrasaNeon,
+    #[schemars(description = "Brasa Glacier")]
+    BrasaGlacier,
+    #[schemars(description = "Brasa Sakura")]
+    BrasaSakura,
+    #[schemars(description = "Brasa Matcha")]
+    BrasaMatcha,
     #[schemars(description = "Dark City")]
     DarkCity,
     #[schemars(description = "Gruvbox Dark")]
@@ -111,6 +137,19 @@ impl std::fmt::Display for ThemeKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let value = match &self {
             ThemeKind::Light => "Brasa Light",
+            ThemeKind::BrasaAsh => "Brasa Ash",
+            ThemeKind::BrasaMidnight => "Brasa Midnight",
+            ThemeKind::BrasaCoal => "Brasa Coal",
+            ThemeKind::BrasaForest => "Brasa Forest",
+            ThemeKind::BrasaPlum => "Brasa Plum",
+            ThemeKind::BrasaSand => "Brasa Sand",
+            ThemeKind::BrasaMist => "Brasa Mist",
+            ThemeKind::BrasaOcean => "Brasa Ocean",
+            ThemeKind::BrasaAurora => "Brasa Aurora",
+            ThemeKind::BrasaNeon => "Brasa Neon",
+            ThemeKind::BrasaGlacier => "Brasa Glacier",
+            ThemeKind::BrasaSakura => "Brasa Sakura",
+            ThemeKind::BrasaMatcha => "Brasa Matcha",
             ThemeKind::Dark => "Brasa Dark",
             ThemeKind::Dracula => "Dracula",
             ThemeKind::SolarizedDark => "Solarized Dark",
@@ -473,6 +512,19 @@ impl BrasaThemeConfig {
             ),
             (ThemeKind::Dark, dark_theme()),
             (ThemeKind::Light, light_theme()),
+            (ThemeKind::BrasaAsh, brasa_ash()),
+            (ThemeKind::BrasaMidnight, brasa_midnight()),
+            (ThemeKind::BrasaCoal, brasa_coal()),
+            (ThemeKind::BrasaForest, brasa_forest()),
+            (ThemeKind::BrasaPlum, brasa_plum()),
+            (ThemeKind::BrasaSand, brasa_sand()),
+            (ThemeKind::BrasaMist, brasa_mist()),
+            (ThemeKind::BrasaOcean, brasa_ocean()),
+            (ThemeKind::BrasaAurora, brasa_aurora()),
+            (ThemeKind::BrasaNeon, brasa_neon()),
+            (ThemeKind::BrasaGlacier, brasa_glacier()),
+            (ThemeKind::BrasaSakura, brasa_sakura()),
+            (ThemeKind::BrasaMatcha, brasa_matcha()),
             (ThemeKind::SolarizedDark, solarized_dark()),
             (ThemeKind::SolarizedLight, solarized_light()),
             (ThemeKind::Dracula, dracula()),

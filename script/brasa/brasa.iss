@@ -45,7 +45,7 @@ MinVersion=10.0.17763
 SetupIconFile=..\..\brand\icon\icon.ico
 UninstallDisplayIcon={app}\brasa.exe
 UninstallDisplayName=Brasa
-LicenseFile=..\..\LICENSE-AGPL
+; Sin página de licencia: LICENSE-AGPL.txt y LICENSE-MIT.txt se copian a la carpeta del programa (empaquetar.ps1).
 OutputDir={#OutDir}
 OutputBaseFilename=Brasa-Setup-{#Version}-{#Arch}
 Compression=lzma2/max

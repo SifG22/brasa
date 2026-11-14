@@ -47,6 +47,99 @@ pub(crate) fn fix_with_claude_prompt(command: &str, output: &str) -> String {
     )
 }
 
+/// The model used for local AI when Ollama has none that suits better. `ollama run` downloads it
+/// the first time.
+pub(crate) const DEFAULT_LOCAL_MODEL: &str = "qwen2.5-coder:3b";
+
+/// Where to get Ollama when it is not installed.
+pub(crate) const OLLAMA_DOWNLOAD_URL: &str = "https://ollama.com/download";
+
+/// What `ollama list` says about the models on this computer.
+pub(crate) enum LocalModels {
+    /// Ollama is not installed.
+    NotInstalled,
+    /// Ollama is installed; these are its models, possibly none.
+    Installed(Vec<String>),
+}
+
+/// Asks Ollama which models it has.
+pub(crate) fn local_models() -> LocalModels {
+    let mut command = std::process::Command::new("ollama");
+    command.arg("list");
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt as _;
+        // Without this a console window flashes while `ollama list` runs.
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        command.creation_flags(CREATE_NO_WINDOW);
+    }
+    match command.output() {
+        Ok(output) => {
+            LocalModels::Installed(parse_ollama_list(&String::from_utf8_lossy(&output.stdout)))
+        }
+        Err(err) if err.kind() == io::ErrorKind::NotFound => LocalModels::NotInstalled,
+        // Ollama is there but did not answer (for example, its service is stopped).
+        Err(_) => LocalModels::Installed(Vec::new()),
+    }
+}
+
+/// The model names in the output of `ollama list`, in its order.
+pub(crate) fn parse_ollama_list(list: &str) -> Vec<String> {
+    list.lines()
+        .skip(1)
+        .filter_map(|line| line.split_whitespace().next())
+        .map(str::to_owned)
+        .collect()
+}
+
+/// The best model for code among `models`: the first one made for code, otherwise the first one,
+/// otherwise [`DEFAULT_LOCAL_MODEL`].
+pub(crate) fn pick_local_model(models: &[String]) -> String {
+    const CODE_MODELS: [&str; 5] = ["coder", "codellama", "codestral", "codegemma", "starcoder"];
+    models
+        .iter()
+        .find(|model| CODE_MODELS.iter().any(|hint| model.contains(hint)))
+        .or_else(|| models.first())
+        .cloned()
+        .unwrap_or_else(|| DEFAULT_LOCAL_MODEL.to_owned())
+}
+
+/// The command that starts the local AI (Ollama) with `model`, first moving to `cwd`, and hands it
+/// the contents of `prompt_file` when there is one. Without a prompt it opens a chat.
+///
+/// PowerShell has no `<` redirection, so it pipes the file instead, in UTF-8 so accents survive.
+pub(crate) fn local_ai_command(
+    cwd: Option<&Path>,
+    prompt_file: Option<&Path>,
+    model: &str,
+    is_powershell: bool,
+) -> String {
+    let mut command = String::new();
+    if let Some(dir) = cwd.and_then(quotable) {
+        command.push_str(&format!("cd '{dir}'; "));
+    }
+    let model = model.replace('\'', "");
+    match prompt_file.and_then(quotable) {
+        Some(file) if is_powershell => command.push_str(&format!(
+            "$OutputEncoding = [Text.UTF8Encoding]::new($false); \
+             Get-Content -Raw -Encoding UTF8 '{file}' | ollama run '{model}'"
+        )),
+        Some(file) => command.push_str(&format!("ollama run '{model}' < '{file}'")),
+        None => command.push_str(&format!("ollama run '{model}'")),
+    }
+    command
+}
+
+/// The message for the local AI about a failed `command` and its `output`. Small models need the
+/// task spelled out, so it goes first.
+pub(crate) fn explain_with_local_ai_prompt(command: &str, output: &str) -> String {
+    format!(
+        "Eres un experto en terminales y programación. Explica en español, de forma breve y \
+         clara, por qué ha fallado este comando y qué hay que hacer para arreglarlo.\n\n{}",
+        fix_with_claude_prompt(command, output)
+    )
+}
+
 /// Saves `prompt` in a new file in the temp folder and returns its path.
 pub(crate) fn write_prompt_file(prompt: &str) -> io::Result<PathBuf> {
     let dir = std::env::temp_dir().join("brasa");

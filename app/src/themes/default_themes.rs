@@ -629,3 +629,362 @@ pub(super) fn received_referral_reward() -> BrasaTheme {
         Some("Received Referral Reward".to_string()),
     )
 }
+
+// Temas de Brasa Code, con los mismos colores que en el editor.
+pub(super) fn brasa_ash() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0x292725FF)),
+        ColorU::from_u32(0xE3E2E0FF),
+        Fill::Solid(ColorU::from_u32(0xFAAD3AFF)),
+        None,
+        Some(Details::Darker),
+        TerminalColors::new(
+            AnsiColors::new(
+                AnsiColor::from_u32(0x3A3835FF),
+                AnsiColor::from_u32(0xFBC36FFF),
+                AnsiColor::from_u32(0x9BD67EFF),
+                AnsiColor::from_u32(0xFAB44CFF),
+                AnsiColor::from_u32(0x7EB6FFFF),
+                AnsiColor::from_u32(0xF29BC9FF),
+                AnsiColor::from_u32(0x6FD6CFFF),
+                AnsiColor::from_u32(0xD3D1CFFF),
+            ),
+            AnsiColors::new(
+                AnsiColor::from_u32(0x75706AFF),
+                AnsiColor::from_u32(0xFCCC83FF),
+                AnsiColor::from_u32(0xB8E79EFF),
+                AnsiColor::from_u32(0xFFD07AFF),
+                AnsiColor::from_u32(0xA5CBFFFF),
+                AnsiColor::from_u32(0xF7BCDBFF),
+                AnsiColor::from_u32(0x97E6E0FF),
+                AnsiColor::from_u32(0xF6F6F5FF),
+            ),
+        ),
+        None,
+        Some("Brasa Ash".to_string()),
+    )
+}
+
+pub(super) fn brasa_midnight() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0x151A28FF)),
+        ColorU::from_u32(0xD8DEEBFF),
+        Fill::Solid(ColorU::from_u32(0xFF7835FF)),
+        None,
+        Some(Details::Darker),
+        TerminalColors::new(
+            AnsiColors::new(
+                AnsiColor::from_u32(0x212A3FFF),
+                AnsiColor::from_u32(0xFF9C6BFF),
+                AnsiColor::from_u32(0x9BD67EFF),
+                AnsiColor::from_u32(0xFF8447FF),
+                AnsiColor::from_u32(0x7EB6FFFF),
+                AnsiColor::from_u32(0xF29BC9FF),
+                AnsiColor::from_u32(0x6FD6CFFF),
+                AnsiColor::from_u32(0xC2CBE0FF),
+            ),
+            AnsiColors::new(
+                AnsiColor::from_u32(0x485D8CFF),
+                AnsiColor::from_u32(0xFFAA80FF),
+                AnsiColor::from_u32(0xB8E79EFF),
+                AnsiColor::from_u32(0xFFD07AFF),
+                AnsiColor::from_u32(0xA5CBFFFF),
+                AnsiColor::from_u32(0xF7BCDBFF),
+                AnsiColor::from_u32(0x97E6E0FF),
+                AnsiColor::from_u32(0xF2F4F9FF),
+            ),
+        ),
+        None,
+        Some("Brasa Midnight".to_string()),
+    )
+}
+
+pub(super) fn brasa_coal() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0x060606FF)),
+        ColorU::from_u32(0xE2E2E2FF),
+        Fill::Solid(ColorU::from_u32(0xFF6435FF)),
+        None,
+        Some(Details::Darker),
+        TerminalColors::new(
+            AnsiColors::new(
+                AnsiColor::from_u32(0x0D0D0DFF),
+                AnsiColor::from_u32(0xFF8E6BFF),
+                AnsiColor::from_u32(0x9BD67EFF),
+                AnsiColor::from_u32(0xFF7247FF),
+                AnsiColor::from_u32(0x7EB6FFFF),
+                AnsiColor::from_u32(0xF29BC9FF),
+                AnsiColor::from_u32(0x6FD6CFFF),
+                AnsiColor::from_u32(0xD1D1D1FF),
+            ),
+            AnsiColors::new(
+                AnsiColor::from_u32(0x222222FF),
+                AnsiColor::from_u32(0xFF9E80FF),
+                AnsiColor::from_u32(0xB8E79EFF),
+                AnsiColor::from_u32(0xFFD07AFF),
+                AnsiColor::from_u32(0xA5CBFFFF),
+                AnsiColor::from_u32(0xF7BCDBFF),
+                AnsiColor::from_u32(0x97E6E0FF),
+                AnsiColor::from_u32(0xF6F6F6FF),
+            ),
+        ),
+        None,
+        Some("Brasa Coal".to_string()),
+    )
+}
+
+pub(super) fn brasa_forest() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0x182721FF)),
+        ColorU::from_u32(0xDAE9E3FF),
+        Fill::Solid(ColorU::from_u32(0xA7D95BFF)),
+        None,
+        Some(Details::Darker),
+        TerminalColors::new(
+            AnsiColors::new(
+                AnsiColor::from_u32(0x253D33FF),
+                AnsiColor::from_u32(0xBEE387FF),
+                AnsiColor::from_u32(0x9BD67EFF),
+                AnsiColor::from_u32(0xAEDC6AFF),
+                AnsiColor::from_u32(0x7EB6FFFF),
+                AnsiColor::from_u32(0xF29BC9FF),
+                AnsiColor::from_u32(0x6FD6CFFF),
+                AnsiColor::from_u32(0xC6DCD3FF),
+            ),
+            AnsiColors::new(
+                AnsiColor::from_u32(0x51856FFF),
+                AnsiColor::from_u32(0xC7E798FF),
+                AnsiColor::from_u32(0xB8E79EFF),
+                AnsiColor::from_u32(0xFFD07AFF),
+                AnsiColor::from_u32(0xA5CBFFFF),
+                AnsiColor::from_u32(0xF7BCDBFF),
+                AnsiColor::from_u32(0x97E6E0FF),
+                AnsiColor::from_u32(0xF3F8F6FF),
+            ),
+        ),
+        None,
+        Some("Brasa Forest".to_string()),
+    )
+}
+
+pub(super) fn brasa_plum() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0x241928FF)),
+        ColorU::from_u32(0xE5DBE8FF),
+        Fill::Solid(ColorU::from_u32(0xF53F9AFF)),
+        None,
+        Some(Details::Darker),
+        TerminalColors::new(
+            AnsiColors::new(
+                AnsiColor::from_u32(0x38273DFF),
+                AnsiColor::from_u32(0xF872B5FF),
+                AnsiColor::from_u32(0x9BD67EFF),
+                AnsiColor::from_u32(0xF650A3FF),
+                AnsiColor::from_u32(0x7EB6FFFF),
+                AnsiColor::from_u32(0xF29BC9FF),
+                AnsiColor::from_u32(0x6FD6CFFF),
+                AnsiColor::from_u32(0xD6C7DBFF),
+            ),
+            AnsiColors::new(
+                AnsiColor::from_u32(0x785484FF),
+                AnsiColor::from_u32(0xF986C0FF),
+                AnsiColor::from_u32(0xB8E79EFF),
+                AnsiColor::from_u32(0xFFD07AFF),
+                AnsiColor::from_u32(0xA5CBFFFF),
+                AnsiColor::from_u32(0xF7BCDBFF),
+                AnsiColor::from_u32(0x97E6E0FF),
+                AnsiColor::from_u32(0xF7F3F8FF),
+            ),
+        ),
+        None,
+        Some("Brasa Plum".to_string()),
+    )
+}
+
+pub(super) fn brasa_sand() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0xF5F0E7FF)),
+        ColorU::from_u32(0x3B3226FF),
+        Fill::Solid(ColorU::from_u32(0xD5461AFF)),
+        None,
+        Some(Details::Lighter),
+        light_mode_colors(),
+        None,
+        Some("Brasa Sand".to_string()),
+    )
+}
+
+pub(super) fn brasa_mist() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0xEEF1F5FF)),
+        ColorU::from_u32(0x27323FFF),
+        Fill::Solid(ColorU::from_u32(0x156CD1FF)),
+        None,
+        Some(Details::Lighter),
+        light_mode_colors(),
+        None,
+        Some("Brasa Mist".to_string()),
+    )
+}
+
+pub(super) fn brasa_ocean() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0x13232AFF)),
+        ColorU::from_u32(0xD6E6EDFF),
+        Fill::Solid(ColorU::from_u32(0x2CC8E0FF)),
+        None,
+        Some(Details::Darker),
+        TerminalColors::new(
+            AnsiColors::new(
+                AnsiColor::from_u32(0x1D3743FF),
+                AnsiColor::from_u32(0xFF7B86FF),
+                AnsiColor::from_u32(0x9BD67EFF),
+                AnsiColor::from_u32(0xFFC46BFF),
+                AnsiColor::from_u32(0x7EB6FFFF),
+                AnsiColor::from_u32(0xF29BC9FF),
+                AnsiColor::from_u32(0x6FD6CFFF),
+                AnsiColor::from_u32(0xBED8E4FF),
+            ),
+            AnsiColors::new(
+                AnsiColor::from_u32(0x407B94FF),
+                AnsiColor::from_u32(0xFF9AA3FF),
+                AnsiColor::from_u32(0xB8E79EFF),
+                AnsiColor::from_u32(0x68C7E9FF),
+                AnsiColor::from_u32(0xA5CBFFFF),
+                AnsiColor::from_u32(0xF7BCDBFF),
+                AnsiColor::from_u32(0x97E6E0FF),
+                AnsiColor::from_u32(0xF1F7FAFF),
+            ),
+        ),
+        None,
+        Some("Brasa Ocean".to_string()),
+    )
+}
+
+pub(super) fn brasa_aurora() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0x181528FF)),
+        ColorU::from_u32(0xDBD8EBFF),
+        Fill::Solid(ColorU::from_u32(0xA78BFAFF)),
+        None,
+        Some(Details::Darker),
+        TerminalColors::new(
+            AnsiColors::new(
+                AnsiColor::from_u32(0x25213FFF),
+                AnsiColor::from_u32(0xFF7B86FF),
+                AnsiColor::from_u32(0x9BD67EFF),
+                AnsiColor::from_u32(0xFFC46BFF),
+                AnsiColor::from_u32(0x7EB6FFFF),
+                AnsiColor::from_u32(0xF29BC9FF),
+                AnsiColor::from_u32(0x6FD6CFFF),
+                AnsiColor::from_u32(0xC6C2E0FF),
+            ),
+            AnsiColors::new(
+                AnsiColor::from_u32(0x5F54A4FF),
+                AnsiColor::from_u32(0xFF9AA3FF),
+                AnsiColor::from_u32(0xB8E79EFF),
+                AnsiColor::from_u32(0xDFCDFDFF),
+                AnsiColor::from_u32(0xA5CBFFFF),
+                AnsiColor::from_u32(0xF7BCDBFF),
+                AnsiColor::from_u32(0x97E6E0FF),
+                AnsiColor::from_u32(0xF3F2F9FF),
+            ),
+        ),
+        None,
+        Some("Brasa Aurora".to_string()),
+    )
+}
+
+pub(super) fn brasa_neon() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0x1B0F27FF)),
+        ColorU::from_u32(0xC9B3E2FF),
+        Fill::Solid(ColorU::from_u32(0xFF4FB6FF)),
+        None,
+        Some(Details::Darker),
+        TerminalColors::new(
+            AnsiColors::new(
+                AnsiColor::from_u32(0x2A183EFF),
+                AnsiColor::from_u32(0xFF7B86FF),
+                AnsiColor::from_u32(0x9BD67EFF),
+                AnsiColor::from_u32(0xFFC46BFF),
+                AnsiColor::from_u32(0x7EB6FFFF),
+                AnsiColor::from_u32(0xF29BC9FF),
+                AnsiColor::from_u32(0x6FD6CFFF),
+                AnsiColor::from_u32(0xBA9EDBFF),
+            ),
+            AnsiColors::new(
+                AnsiColor::from_u32(0x7341ABFF),
+                AnsiColor::from_u32(0xFF9AA3FF),
+                AnsiColor::from_u32(0xB8E79EFF),
+                AnsiColor::from_u32(0xFF94C5FF),
+                AnsiColor::from_u32(0xA5CBFFFF),
+                AnsiColor::from_u32(0xF7BCDBFF),
+                AnsiColor::from_u32(0x97E6E0FF),
+                AnsiColor::from_u32(0xDCCBEFFF),
+            ),
+        ),
+        None,
+        Some("Brasa Neon".to_string()),
+    )
+}
+
+pub(super) fn brasa_glacier() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0x222730FF)),
+        ColorU::from_u32(0xDEE2E8FF),
+        Fill::Solid(ColorU::from_u32(0x88C0D0FF)),
+        None,
+        Some(Details::Darker),
+        TerminalColors::new(
+            AnsiColors::new(
+                AnsiColor::from_u32(0x2F3743FF),
+                AnsiColor::from_u32(0xFF7B86FF),
+                AnsiColor::from_u32(0x9BD67EFF),
+                AnsiColor::from_u32(0xEBCB8BFF),
+                AnsiColor::from_u32(0x7EB6FFFF),
+                AnsiColor::from_u32(0xF29BC9FF),
+                AnsiColor::from_u32(0x6FD6CFFF),
+                AnsiColor::from_u32(0xCBD1DBFF),
+            ),
+            AnsiColors::new(
+                AnsiColor::from_u32(0x63748EFF),
+                AnsiColor::from_u32(0xFF9AA3FF),
+                AnsiColor::from_u32(0xB8E79EFF),
+                AnsiColor::from_u32(0xB9D5E4FF),
+                AnsiColor::from_u32(0xA5CBFFFF),
+                AnsiColor::from_u32(0xF7BCDBFF),
+                AnsiColor::from_u32(0x97E6E0FF),
+                AnsiColor::from_u32(0xF4F6F8FF),
+            ),
+        ),
+        None,
+        Some("Brasa Glacier".to_string()),
+    )
+}
+
+pub(super) fn brasa_sakura() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0xF4E8EBFF)),
+        ColorU::from_u32(0x3A2A30FF),
+        Fill::Solid(ColorU::from_u32(0xD6336CFF)),
+        None,
+        Some(Details::Lighter),
+        light_mode_colors(),
+        None,
+        Some("Brasa Sakura".to_string()),
+    )
+}
+
+pub(super) fn brasa_matcha() -> BrasaTheme {
+    BrasaTheme::new(
+        Fill::Solid(ColorU::from_u32(0xEEF3E9FF)),
+        ColorU::from_u32(0x2A3320FF),
+        Fill::Solid(ColorU::from_u32(0x437F18FF)),
+        None,
+        Some(Details::Lighter),
+        light_mode_colors(),
+        None,
+        Some("Brasa Matcha".to_string()),
+    )
+}

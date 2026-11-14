@@ -1,11 +1,11 @@
 [package]
 authors = ["Brasa Team <dev@brasa.invalid>"]
 default-run = "brasa"
-description = "The cloud-backed terminal for individuals and teams"
+description = "A fast, modern terminal with Claude built in"
 edition = "2024"
 autobins = false
 name = "brasa"
-version = "0.0.5"
+version = "0.1.0"
 publish.workspace = true
 license.workspace = true
 
@@ -1042,7 +1042,7 @@ acp_harness = []
 
 [package.metadata.bundle.bin.brasa]
 category = "public.app-category.developer-tools"
-copyright = "© 2026 SifG22. Based on Brasa (AGPLv3)"
+copyright = "© 2026 SifG22 · AGPLv3"
 identifier = "net.sifg.Brasa"
 name = "Brasa"
 resources = ["assets/onboarding"]
@@ -1051,44 +1051,44 @@ short_description = "A fast, modern terminal with Claude built in."
 
 [package.metadata.bundle.bin.stable]
 category = "public.app-category.developer-tools"
-copyright = "© 2025, Denver Technologies, Inc"
+copyright = "© 2026 SifG22 · AGPLv3"
 identifier = "dev.brasa.Brasa-Stable"
 name = "Brasa"
 osx_frameworks = [
     "frameworks/default/Sentry-Dynamic-WithARM64e.xcframework/macos-arm64_arm64e_x86_64/Sentry.framework",
 ]
 resources = ["assets/onboarding"]
-short_description = "The cloud-backed terminal for individuals and teams, stable build."
+short_description = "A fast, modern terminal with Claude built in, stable build."
 
 [package.metadata.bundle.bin.preview]
 category = "public.app-category.developer-tools"
-copyright = "© 2025, Denver Technologies, Inc"
+copyright = "© 2026 SifG22 · AGPLv3"
 identifier = "dev.brasa.Brasa-Preview"
 name = "BrasaPreview"
 osx_frameworks = [
     "frameworks/default/Sentry-Dynamic-WithARM64e.xcframework/macos-arm64_arm64e_x86_64/Sentry.framework",
 ]
 resources = ["assets/onboarding"]
-short_description = "The cloud-backed terminal for individuals and teams, feature preview build."
+short_description = "A fast, modern terminal with Claude built in, feature preview build."
 
 [package.metadata.bundle.bin.dev]
 category = "public.app-category.developer-tools"
-copyright = "© 2025, Denver Technologies, Inc"
+copyright = "© 2026 SifG22 · AGPLv3"
 identifier = "dev.brasa.Brasa-Dev"
 name = "BrasaDev"
 osx_frameworks = [
     "frameworks/dev/Sentry-Dynamic-WithARM64e.xcframework/macos-arm64_arm64e_x86_64/Sentry.framework",
 ]
 resources = ["assets/onboarding"]
-short_description = "The cloud-backed terminal for individuals and teams, developer build."
+short_description = "A fast, modern terminal with Claude built in, developer build."
 
 [package.metadata.bundle.bin.brasa-local]
 category = "public.app-category.developer-tools"
-copyright = "© 2025, Denver Technologies, Inc"
+copyright = "© 2026 SifG22 · AGPLv3"
 identifier = "dev.brasa.Brasa-Local"
 name = "BrasaLocal"
 resources = ["assets/onboarding"]
-short_description = "The cloud-backed terminal for individuals and teams, developer build."
+short_description = "A fast, modern terminal with Claude built in, developer build."
 
 [package.metadata.cargo-udeps.ignore]
 normal = ["embed_plist"]

@@ -1,6 +1,6 @@
 #include "environment.iss"
 
-#define MyAppPublisher "Denver Technologies, Inc."
+#define MyAppPublisher "SifG22"
 #define MyAppURL "https://github.com/SifG22/brasa"
 #ifndef MyAppName
   #define MyAppName "BrasaAgentCLIDev"

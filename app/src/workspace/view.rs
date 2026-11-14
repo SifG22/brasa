@@ -137,7 +137,10 @@ use super::action::{
 #[cfg(all(feature = "local_fs", not(target_family = "wasm")))]
 use super::auto_handoff::AutoCloudHandoffController;
 use super::breadcrumbs::breadcrumbs;
-use super::claude_code::{claude_code_command, write_prompt_file};
+use super::claude_code::{
+    LocalModels, OLLAMA_DOWNLOAD_URL, claude_code_command, local_ai_command, local_models,
+    pick_local_model, write_prompt_file,
+};
 pub(crate) use super::close_session_confirmation_dialog::OpenDialogSource;
 use super::close_session_confirmation_dialog::{
     CloseSessionConfirmationDialog, CloseSessionConfirmationEvent,
@@ -12751,6 +12754,76 @@ impl Workspace {
         ctx.notify();
     }
 
+    /// Opens a new tab running the local AI (Ollama) in the active session's directory, handing it
+    /// `prompt` when there is one. When Ollama is not installed, opens its download page instead.
+    fn open_local_ai(&mut self, prompt: Option<&str>, ctx: &mut ViewContext<Self>) {
+        let model = match local_models() {
+            LocalModels::NotInstalled => {
+                ctx.open_url(OLLAMA_DOWNLOAD_URL);
+                return;
+            }
+            LocalModels::Installed(models) => pick_local_model(&models),
+        };
+        let source = self.active_session_view(ctx);
+        let cwd = source
+            .as_ref()
+            .and_then(|view| view.as_ref(ctx).canonical_session_pwd_if_local(ctx));
+        // The new tab normally starts the same shell as the one the user is in.
+        let is_powershell = source
+            .as_ref()
+            .and_then(|view| view.as_ref(ctx).active_session_shell_type(ctx))
+            .is_none_or(|shell| shell == ShellType::PowerShell);
+        self.add_new_session_tab_internal_with_default_session_mode_behavior(
+            NewSessionSource::Tab,
+            Some(ctx.window_id()),
+            None,
+            None,
+            true,
+            DefaultSessionModeBehavior::Ignore,
+            ctx,
+        );
+        let Some(terminal) = self.active_session_view(ctx) else {
+            log::warn!("No terminal in the new tab to start the local AI in");
+            return;
+        };
+        let prompt_file = prompt.and_then(|prompt| {
+            write_prompt_file(prompt)
+                .inspect_err(|err| log::warn!("Could not save the prompt for the local AI: {err}"))
+                .ok()
+        });
+        let command = local_ai_command(
+            cwd.as_ref().map(|cwd| cwd.as_path()),
+            prompt_file.as_deref(),
+            &model,
+            is_powershell,
+        );
+        terminal.update(ctx, |terminal, ctx| {
+            terminal.execute_command_or_set_pending(&command, ctx);
+        });
+        ctx.notify();
+    }
+
+    /// Opens the active session's folder in Brasa Code. When Brasa Code is not installed, opens
+    /// its download page instead.
+    fn open_in_brasa_code(&mut self, ctx: &mut ViewContext<Self>) {
+        let cwd = self
+            .active_session_view(ctx)
+            .and_then(|view| view.as_ref(ctx).canonical_session_pwd_if_local(ctx));
+        #[cfg(all(windows, feature = "local_fs"))]
+        if let Some(program) = Editor::BrasaCode.executable_path() {
+            let mut command = std::process::Command::new(program);
+            if let Some(cwd) = &cwd {
+                command.arg(cwd.as_path());
+            }
+            if let Err(err) = command.spawn() {
+                log::warn!("Could not start Brasa Code: {err}");
+            }
+            return;
+        }
+        let _ = cwd;
+        ctx.open_url(BRASA_CODE_DOWNLOAD_URL);
+    }
+
     fn add_get_started_tab(&mut self, ctx: &mut ViewContext<Self>) {
         self.add_tab_with_pane_layout(
             PanesLayout::Snapshot(Box::new(PaneNodeSnapshot::Leaf(LeafSnapshot {
@@ -20794,6 +20867,32 @@ impl Workspace {
         .finish()
     }
 
+    fn render_brasa_code_button(
+        &self,
+        appearance: &Appearance,
+        ctx: &AppContext,
+    ) -> Box<dyn Element> {
+        let label = if brasa_code_installed() {
+            "Open the current folder in Brasa Code"
+        } else {
+            "Get Brasa Code, the editor made for Brasa"
+        };
+        Align::new(
+            self.render_tab_bar_icon_button(
+                appearance,
+                icons::Icon::InlineCode,
+                &self.mouse_states.brasa_code_button,
+                WorkspaceAction::OpenInBrasaCode,
+                label.to_string(),
+                keybinding_name_to_display_string("workspace:open_in_brasa_code", ctx),
+                false,
+                false,
+            )
+            .finish(),
+        )
+        .finish()
+    }
+
     fn render_left_toggle_button(
         &self,
         appearance: &Appearance,
@@ -21596,6 +21695,7 @@ impl Workspace {
                 self.render_agent_management_view_button(appearance, ctx)
             }
             HeaderToolbarItemKind::ClaudeCode => self.render_claude_code_button(appearance, ctx),
+            HeaderToolbarItemKind::BrasaCode => self.render_brasa_code_button(appearance, ctx),
             HeaderToolbarItemKind::CodeReview => self.render_right_panel_button(appearance, ctx),
             HeaderToolbarItemKind::NotificationsMailbox => {
                 self.render_notifications_mailbox_button(appearance, ctx)
@@ -23238,6 +23338,7 @@ impl Workspace {
             }
             HeaderToolbarItemKind::AgentManagement
             | HeaderToolbarItemKind::ClaudeCode
+            | HeaderToolbarItemKind::BrasaCode
             | HeaderToolbarItemKind::NotificationsMailbox => None,
         }
     }
@@ -24483,6 +24584,8 @@ impl TypedActionView for Workspace {
                 ctx.notify();
             }
             OpenClaudeCode { prompt } => self.open_claude_code(prompt.as_deref(), ctx),
+            OpenInBrasaCode => self.open_in_brasa_code(ctx),
+            OpenLocalAi { prompt } => self.open_local_ai(prompt.as_deref(), ctx),
             AddTabWithShell { shell, source } => {
                 self.add_tab_with_shell(shell.clone(), *source, ctx)
             }
@@ -30086,5 +30189,20 @@ fn set_opencode_brasa_plugin(new_entry: &str) -> String {
             Err(e) => format!("Failed to write opencode.json: {e}"),
         },
         Err(e) => format!("Failed to serialize opencode.json: {e}"),
+    }
+}
+
+/// Where to get Brasa Code when it is not installed.
+const BRASA_CODE_DOWNLOAD_URL: &str = "https://github.com/SifG22/brasa-code/releases/latest";
+
+/// Whether Brasa Code is installed on this computer.
+fn brasa_code_installed() -> bool {
+    #[cfg(all(windows, feature = "local_fs"))]
+    {
+        Editor::BrasaCode.executable_path().is_some()
+    }
+    #[cfg(not(all(windows, feature = "local_fs")))]
+    {
+        false
     }
 }

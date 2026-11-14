@@ -27,6 +27,7 @@ use crate::workspace::tab_settings::TabSettings;
 #[schemars(rename_all = "snake_case")]
 pub enum HeaderToolbarItemKind {
     ClaudeCode,
+    BrasaCode,
     TabsPanel,
     ToolsPanel,
     AgentManagement,
@@ -38,6 +39,7 @@ impl HeaderToolbarItemKind {
     pub fn display_label(&self) -> &'static str {
         match self {
             Self::ClaudeCode => "Claude Code",
+            Self::BrasaCode => "Brasa Code",
             Self::TabsPanel => "Tabs Panel",
             Self::ToolsPanel => "Tools Panel",
             Self::AgentManagement => "Agent Management",
@@ -49,6 +51,7 @@ impl HeaderToolbarItemKind {
     pub fn icon(&self) -> Icon {
         match self {
             Self::ClaudeCode => Icon::ClaudeLogo,
+            Self::BrasaCode => Icon::InlineCode,
             Self::TabsPanel => Icon::Menu,
             Self::ToolsPanel => Icon::Tool2,
             Self::AgentManagement => Icon::Grid,
@@ -63,6 +66,7 @@ impl HeaderToolbarItemKind {
     pub fn is_supported(&self, app: &AppContext) -> bool {
         match self {
             Self::ClaudeCode => true,
+            Self::BrasaCode => cfg!(all(windows, feature = "local_fs")),
             Self::TabsPanel => {
                 FeatureFlag::VerticalTabs.is_enabled()
                     && *TabSettings::as_ref(app).use_vertical_tabs
@@ -108,6 +112,7 @@ impl HeaderToolbarItemKind {
     pub fn default_right() -> Vec<Self> {
         vec![
             Self::ClaudeCode,
+            Self::BrasaCode,
             Self::CodeReview,
             Self::NotificationsMailbox,
         ]
@@ -117,6 +122,7 @@ impl HeaderToolbarItemKind {
     pub fn all_items() -> Vec<Self> {
         vec![
             Self::ClaudeCode,
+            Self::BrasaCode,
             Self::TabsPanel,
             Self::ToolsPanel,
             Self::AgentManagement,

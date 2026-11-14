@@ -18,7 +18,6 @@ use super::Editor;
 static INSTALLED_EDITOR_METADATA: OnceLock<HashMap<Editor, EditorMetadata>> = OnceLock::new();
 
 struct EditorMetadata {
-    #[allow(unused)]
     executable_path: PathBuf,
 }
 
@@ -118,14 +117,29 @@ fn compute_installed_editors() -> HashMap<Editor, EditorMetadata> {
 
 impl Editor {
     pub fn is_installed(&self, _ctx: &mut AppContext) -> bool {
+        self.executable_path().is_some()
+    }
+
+    /// Where the editor's program is installed, when it is installed.
+    pub fn executable_path(&self) -> Option<&'static Path> {
         INSTALLED_EDITOR_METADATA
             .get_or_init(compute_installed_editors)
-            .contains_key(self)
+            .get(self)
+            .map(|metadata| metadata.executable_path.as_path())
+            .filter(|path| path.is_file())
     }
 
     /// Returns the set of IDs that identify a given Editor.
     fn app_ids(self) -> &'static [&'static str] {
         match self {
+            Editor::BrasaCode => &[
+                // x64 and ARM64, per-user installs (the default)
+                "{01CB65D8-2D0F-4D59-8D4E-F0B1E9F47591}_is1",
+                "{8CD95088-29B4-4347-BCB9-98CEE598DBAC}_is1",
+                // x64 and ARM64, system-wide installs
+                "{62E97731-30A4-482B-BF81-AD72934B57EF}_is1",
+                "{8A8DD504-C521-43F6-9F12-2F464F8D645F}_is1",
+            ],
             Editor::VSCode => {
                 &[
                     // 64-bit version of VSCode (user) - provided by default in 64-bit Windows
@@ -150,6 +164,7 @@ impl Editor {
 
     fn executable_location_method(&self) -> Option<ExecutableLocationMethod> {
         match self {
+            Editor::BrasaCode => Some(ExecutableLocationMethod::DisplayIcon),
             Editor::VSCode => Some(ExecutableLocationMethod::InstallLocation {
                 path_to_executable: Path::new("bin").join("code.exe"),
             }),
@@ -167,6 +182,20 @@ impl Editor {
         full_path: &Path,
     ) -> Option<Command> {
         let command = match self {
+            Editor::BrasaCode => {
+                // The editor's own program takes the same arguments as its `bscode` command and
+                // hands them to the window that is already open.
+                let mut command = Command::new(self.executable_path()?);
+                command.arg("--goto").arg(format!(
+                    "{}{}",
+                    full_path.display(),
+                    line_column_number
+                        .as_ref()
+                        .map(LineAndColumnArg::to_string_suffix)
+                        .unwrap_or_default()
+                ));
+                command
+            }
             Editor::VSCode => {
                 let mut command = Command::new("explorer.exe");
                 let suffix = line_column_number

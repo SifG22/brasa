@@ -6,7 +6,7 @@ Summary:     Brasa, the Rust-based terminal for developers and teams
 Name:        brasa-terminal@@CHANNEL_SUFFIX@@
 Version:     @@VERSION@@
 Release:     @@RELEASE@@
-Vendor:      Denver Technologies, Inc.
+Vendor:      SifG22
 Url:         https://github.com/SifG22/brasa
 Packager:    Brasa Linux Maintainers <linux-maintainers@brasa.invalid>
 License:     https://github.com/SifG22/brasa

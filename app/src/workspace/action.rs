@@ -254,6 +254,14 @@ pub enum WorkspaceAction {
         /// A first message for Claude Code, such as a failed command and its output.
         prompt: Option<String>,
     },
+    /// Opens the active session's directory in Brasa Code, or its download page when it is not
+    /// installed.
+    OpenInBrasaCode,
+    /// Opens a new tab running the local AI (Ollama) in the active session's directory.
+    OpenLocalAi {
+        /// A first message for the local AI, such as a failed command and its output.
+        prompt: Option<String>,
+    },
     AddTabWithShell {
         shell: AvailableShell,
         source: AddTabWithShellSource,
@@ -990,6 +998,8 @@ impl WorkspaceAction {
             | AddDefaultTab
             | AddTerminalTab { .. }
             | OpenClaudeCode { .. }
+            | OpenInBrasaCode
+            | OpenLocalAi { .. }
             | AddTabWithShell { .. }
             | AddGetStartedTab
             | AddAgentTab

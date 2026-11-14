@@ -6,7 +6,7 @@ Summary:     The orchestration platform for cloud agents.
 Name:        oz@@CHANNEL_SUFFIX@@
 Version:     @@VERSION@@
 Release:     @@RELEASE@@
-Vendor:      Denver Technologies, Inc.
+Vendor:      SifG22
 Url:         https://github.com/SifG22/brasa
 Packager:    Brasa Linux Maintainers <linux-maintainers@brasa.invalid>
 License:     https://github.com/SifG22/brasa

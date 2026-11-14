@@ -507,7 +507,7 @@ BEGIN
             VALUE "CompanyName",      "SifG22\0"
             VALUE "FileDescription",  "{app_name}\0"
             VALUE "FileVersion",      "{version}\0"
-            VALUE "LegalCopyright",   "© 2026 SifG22. Based on Brasa (AGPLv3)\0"
+            VALUE "LegalCopyright",   "© 2026 SifG22 · AGPLv3\0"
             VALUE "InternalName",     "\0"
             VALUE "OriginalFilename", "\0"
             VALUE "ProductName",      "Brasa\0"
