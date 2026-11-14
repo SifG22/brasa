@@ -52,6 +52,9 @@ Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
 CloseApplications=yes
+; Avisa a Windows al terminar para que refresque los iconos (si no, el escritorio puede seguir
+; mostrando el logo de la versión anterior).
+ChangesAssociations=yes
 VersionInfoVersion={#Version}
 VersionInfoCompany=SifG22
 VersionInfoDescription=Instalador de Brasa
@@ -73,3 +76,42 @@ Name: "{autodesktop}\Brasa"; Filename: "{app}\brasa.exe"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\brasa.exe"; Description: "{cm:LaunchProgram,Brasa}"; Flags: nowait postinstall skipifsilent
+; Al actualizar desde Brasa se vuelve a abrir solo.
+Filename: "{app}\brasa.exe"; Flags: nowait; Check: IsUpdateFromBrasa
+
+[Code]
+// El actualizador de Brasa abre este instalador con /SILENT ... /RESTARTAPPLICATIONS.
+function IsUpdateFromBrasa: Boolean;
+begin
+  Result := WizardSilent and (Pos('/RESTARTAPPLICATIONS', Uppercase(GetCmdTail)) > 0);
+end;
+
+function BrasaIsRunning: Boolean;
+var
+  Code: Integer;
+begin
+  // find termina con 0 cuando tasklist muestra algún brasa.exe.
+  Result := Exec(ExpandConstant('{cmd}'), '/C tasklist /FI "IMAGENAME eq brasa.exe" /NH | find /I "brasa.exe" >NUL',
+    '', SW_HIDE, ewWaitUntilTerminated, Code) and (Code = 0);
+end;
+
+// Al actualizar, Brasa sigue abierto y sus consolas usan archivos de la carpeta del programa, así
+// que el instalador no podría reemplazarlos. Se cierra Brasa antes de copiar nada. Sin /T: este
+// instalador lo ha abierto Brasa y es proceso hijo suyo.
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  I, Code: Integer;
+begin
+  Result := '';
+  if not IsUpdateFromBrasa or not BrasaIsRunning then
+    Exit;
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM brasa.exe', '', SW_HIDE, ewWaitUntilTerminated, Code);
+  for I := 1 to 20 do
+  begin
+    if not BrasaIsRunning then
+      Break;
+    Sleep(500);
+  end;
+  // Las consolas de Brasa (OpenConsole.exe) se cierran un momento después que Brasa.
+  Sleep(2000);
+end;
