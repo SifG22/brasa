@@ -1,5 +1,10 @@
 # Novedades de Brasa
 
+## 0.1.1
+
+- **Actualizaciones sin errores**: al actualizar desde Brasa, el instalador cierra Brasa, se instala y lo vuelve a abrir solo. Antes podía fallar porque Brasa seguía abierto.
+- Al terminar de instalar, Windows refresca los iconos, así que el escritorio ya no se queda con el logo antiguo.
+
 ## 0.1.0
 
 - **Logo nuevo**: Brasita, la mascota de Brasa Code, hace de cursor junto al `>` del prompt.
