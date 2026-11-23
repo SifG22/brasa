@@ -1,5 +1,13 @@
 # Novedades de Brasa
 
+## 0.2.0
+
+- **Panel Agent usage**: el botón de Brasita de la barra superior (o *Agent Usage* en la paleta de comandos) muestra cuántos tokens gastan tus agentes de IA (Claude Code, Codex, Gemini CLI, opencode y la IA local), cuándo trabajan, con qué modelos y dónde: en Brasa, en Brasa Code o en otras apps. Todo se lee de tu PC.
+- **Límites del plan**: cuánto te queda esta semana de Codex y, si lo activas, de Claude, con la previsión de cómo acabarás la semana a tu ritmo. Para Claude, Brasa pregunta a Anthropic con tu sesión de Claude Code, igual que `/usage`.
+- **Telemetría apagada del todo**: Brasa ya no registra ni prepara ningún dato de uso ni de fallos.
+- **Menos trabajo en segundo plano**: fuera el buscador de actualizaciones heredado, que consultaba cada 10 minutos un servidor que no existe, y otras tareas que dependían de servidores que Brasa no tiene. Brasa se sigue actualizando con su propio sistema.
+- **Scroll más suave en Windows**: cada paso de la rueda del ratón desplaza la mitad en los ajustes, las listas y los paneles.
+
 ## 0.1.1
 
 - **Actualizaciones sin errores**: al actualizar desde Brasa, el instalador cierra Brasa, se instala y lo vuelve a abrir solo. Antes podía fallar porque Brasa seguía abierto.
