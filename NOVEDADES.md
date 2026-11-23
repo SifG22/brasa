@@ -1,5 +1,10 @@
 # Novedades de Brasa
 
+## 0.2.1
+
+- **Antigravity y Grok Build en Agent usage**: el panel cuenta también los tokens, tareas, modelos y tiempo de la CLI de Antigravity (`agy`) y de Grok Build (`grok`), y si los usas dentro de Brasa.
+- **Oculta los agentes que no quieras ver**: el botón *Customize* del panel deja elegir qué agentes aparecen. Los ocultos desaparecen de todos los números, gráficas y tarjetas de límites, y Brasa lo recuerda (`agents.usage.hidden_agents` en los ajustes).
+
 ## 0.2.0
 
 - **Panel Agent usage**: el botón de Brasita de la barra superior (o *Agent Usage* en la paleta de comandos) muestra cuántos tokens gastan tus agentes de IA (Claude Code, Codex, Gemini CLI, opencode y la IA local), cuándo trabajan, con qué modelos y dónde: en Brasa, en Brasa Code o en otras apps. Todo se lee de tu PC.

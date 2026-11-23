@@ -19,17 +19,40 @@ pub enum UsageAgent {
     Codex,
     GeminiCli,
     OpenCode,
+    /// Google's Antigravity CLI (`agy`).
+    Antigravity,
+    /// xAI's Grok Build CLI (`grok`).
+    GrokBuild,
     /// The local model that Brasa runs with Ollama.
     LocalAi,
 }
 
 impl UsageAgent {
+    /// Stable name used in settings.
+    pub fn id(self) -> &'static str {
+        match self {
+            UsageAgent::ClaudeCode => "claude_code",
+            UsageAgent::Codex => "codex",
+            UsageAgent::GeminiCli => "gemini_cli",
+            UsageAgent::OpenCode => "opencode",
+            UsageAgent::Antigravity => "antigravity",
+            UsageAgent::GrokBuild => "grok_build",
+            UsageAgent::LocalAi => "local_ai",
+        }
+    }
+
+    pub fn from_id(id: &str) -> Option<Self> {
+        enum_iterator::all::<UsageAgent>().find(|agent| agent.id() == id)
+    }
+
     pub fn display_name(self) -> &'static str {
         match self {
             UsageAgent::ClaudeCode => "Claude Code",
             UsageAgent::Codex => "Codex",
             UsageAgent::GeminiCli => "Gemini CLI",
             UsageAgent::OpenCode => "opencode",
+            UsageAgent::Antigravity => "Antigravity",
+            UsageAgent::GrokBuild => "Grok Build",
             UsageAgent::LocalAi => "Local AI (Ollama)",
         }
     }
@@ -50,6 +73,8 @@ impl UsageAgent {
             "codex" => Some(UsageAgent::Codex),
             "gemini" => Some(UsageAgent::GeminiCli),
             "opencode" => Some(UsageAgent::OpenCode),
+            "agy" | "antigravity" => Some(UsageAgent::Antigravity),
+            "grok" => Some(UsageAgent::GrokBuild),
             _ => None,
         }
     }
@@ -120,6 +145,41 @@ pub struct UsageData {
     pub codex_limits: Vec<LimitSample>,
 }
 
+impl UsageData {
+    /// A copy without the sessions, records and plan limits of the `hidden` agents.
+    pub fn without_agents(&self, hidden: &HashSet<UsageAgent>) -> UsageData {
+        let mut new_index = vec![None; self.sessions.len()];
+        let mut sessions = Vec::new();
+        for (index, session) in self.sessions.iter().enumerate() {
+            if !hidden.contains(&session.agent) {
+                new_index[index] = Some(sessions.len());
+                sessions.push(session.clone());
+            }
+        }
+        let records = self
+            .records
+            .iter()
+            .filter_map(|record| {
+                let session = new_index[record.session]?;
+                Some(UsageRecord {
+                    session,
+                    ..record.clone()
+                })
+            })
+            .collect();
+        let codex_limits = if hidden.contains(&UsageAgent::Codex) {
+            Vec::new()
+        } else {
+            self.codex_limits.clone()
+        };
+        UsageData {
+            sessions,
+            records,
+            codex_limits,
+        }
+    }
+}
+
 /// An agent's plan limits at one moment.
 #[derive(Clone, Debug, PartialEq)]
 pub struct LimitSample {
@@ -162,6 +222,9 @@ pub struct UsageSources {
     pub codex_dirs: Vec<PathBuf>,
     pub gemini_dirs: Vec<PathBuf>,
     pub opencode_dirs: Vec<PathBuf>,
+    /// Antigravity CLI data folders, each holding `brain/` and its conversation index.
+    pub antigravity_dirs: Vec<PathBuf>,
+    pub grok_dirs: Vec<PathBuf>,
     pub brasa_databases: Vec<PathBuf>,
     pub brasa_code_workspaces: Option<PathBuf>,
 }
@@ -201,6 +264,13 @@ impl UsageSources {
             .unwrap_or_else(|_| home.join(".local").join("share"));
         let opencode_dirs = vec![data_home.join("opencode").join("storage")];
 
+        let antigravity_dirs = vec![home.join(".gemini").join("antigravity-cli")];
+
+        let grok_home = std::env::var("GROK_HOME")
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| home.join(".grok"));
+        let grok_dirs = vec![grok_home.join("sessions")];
+
         // Brasa kept its history in warp.sqlite before it was renamed, so older runs live there.
         let brasa_databases = brasa_database
             .map(|database| {
@@ -217,6 +287,8 @@ impl UsageSources {
             codex_dirs,
             gemini_dirs,
             opencode_dirs,
+            antigravity_dirs,
+            grok_dirs,
             brasa_databases,
             brasa_code_workspaces,
         }
@@ -250,6 +322,26 @@ pub fn collect(sources: &UsageSources, brasa_commands: Vec<BrasaCommand>) -> Usa
     for dir in &sources.opencode_dirs {
         for file in files_with_extension(&dir.join("message"), "json") {
             builder.read_opencode_file(&file);
+        }
+    }
+    for dir in &sources.antigravity_dirs {
+        #[cfg(feature = "local_fs")]
+        let conversations = read_antigravity_conversations(&dir.join("conversation_summaries.db"));
+        #[cfg(not(feature = "local_fs"))]
+        let conversations = HashMap::new();
+        let brain = dir.join("brain");
+        for file in files_with_extension(&brain, "jsonl") {
+            let Some(id) = antigravity_transcript_id(&brain, &file) else {
+                continue;
+            };
+            builder.read_antigravity_file(&id, &file, conversations.get(&id));
+        }
+    }
+    for dir in &sources.grok_dirs {
+        for file in files_with_extension(dir, "json") {
+            if file.file_name().is_some_and(|name| name == "usage.json") {
+                builder.read_grok_file(&file);
+            }
         }
     }
 
@@ -651,6 +743,110 @@ impl UsageBuilder {
         }
     }
 
+    fn read_antigravity_file(
+        &mut self,
+        id: &str,
+        path: &Path,
+        conversation: Option<&AntigravityConversation>,
+    ) {
+        let Ok(file) = File::open(path) else {
+            return;
+        };
+        let session = self.session(UsageAgent::Antigravity, id, Launcher::Terminal);
+        if let Some(conversation) = conversation {
+            let state = &mut self.sessions[session];
+            state.is_subagent = conversation.is_subagent;
+            state.location_key.clone_from(&conversation.workspace);
+        }
+        for line in BufReader::new(file).lines().map_while(Result::ok) {
+            let Ok(step) = serde_json::from_str::<AntigravityStep>(&line) else {
+                continue;
+            };
+            // Long conversations are also split into chunk files that repeat the same steps.
+            if !self
+                .seen_messages
+                .insert(format!("antigravity:{id}:{}", step.step_index))
+            {
+                continue;
+            }
+            let Some(timestamp) = step.created_at.as_deref().and_then(parse_timestamp) else {
+                continue;
+            };
+            if step.kind == "USER_INPUT" && step.source == "USER_EXPLICIT" {
+                self.sessions[session].turns.push(timestamp);
+            } else if step.model.is_some() {
+                // Unlike Gemini's API, Antigravity counts cached prompt tokens apart from the rest.
+                self.push_record(
+                    session,
+                    timestamp,
+                    step.model,
+                    step.input_tokens + step.cache_read_tokens,
+                    step.cache_read_tokens,
+                    step.output_tokens,
+                );
+            }
+        }
+    }
+
+    fn read_grok_file(&mut self, path: &Path) {
+        let Ok(text) = std::fs::read_to_string(path) else {
+            return;
+        };
+        let Ok(usage) = serde_json::from_str::<GrokUsageFile>(&text) else {
+            return;
+        };
+        let summary = std::fs::read_to_string(path.with_file_name("summary.json"))
+            .ok()
+            .and_then(|text| serde_json::from_str::<GrokSummary>(&text).ok())
+            .unwrap_or_default();
+        let id = if usage.session_id.is_empty() {
+            summary.info.id
+        } else {
+            usage.session_id
+        };
+        if id.is_empty() {
+            return;
+        }
+        let session = self.session(UsageAgent::GrokBuild, &id, Launcher::Terminal);
+        let state = &mut self.sessions[session];
+        state.is_subagent = summary
+            .session_kind
+            .is_some_and(|kind| kind.starts_with("subagent"));
+        if let Some(cwd) = summary.info.cwd {
+            state.location_key = Some(normalize_dir(&cwd));
+        }
+        for turn in usage.turns {
+            let Some(timestamp) = parse_timestamp(&turn.ended_at) else {
+                continue;
+            };
+            self.sessions[session].turns.push(timestamp);
+            if turn.model_usage.is_empty() {
+                self.push_grok_record(session, timestamp, turn.primary_model_id, &turn.usage);
+            }
+            for (model, tokens) in &turn.model_usage {
+                self.push_grok_record(session, timestamp, Some(model.clone()), tokens);
+            }
+        }
+    }
+
+    /// Grok's input count already includes the cached tokens.
+    fn push_grok_record(
+        &mut self,
+        session: usize,
+        timestamp: DateTime<Utc>,
+        model: Option<String>,
+        tokens: &GrokTokens,
+    ) {
+        self.push_record(
+            session,
+            timestamp,
+            model,
+            tokens.input_tokens,
+            tokens.cached_read_tokens,
+            tokens.output_tokens,
+        );
+    }
+
     fn add_local_ai_run(&mut self, run: &BrasaAgentRun) {
         let id = format!("{}", run.start.timestamp_millis());
         let session = self.session(UsageAgent::LocalAi, &id, Launcher::Terminal);
@@ -762,6 +958,97 @@ struct CodexLine {
 
 /// Turns Brasa's command history into agent runs. A run without an end lasts until the next
 /// command in the same Brasa session, since nothing else runs there while the agent is open.
+/// The conversation a transcript belongs to, for files at
+/// `brain/<conversation>/.system_generated/logs/transcript.jsonl` or in its `chunks/transcript/`.
+fn antigravity_transcript_id(brain: &Path, file: &Path) -> Option<String> {
+    let relative = file.strip_prefix(brain).ok()?;
+    let parent = file.parent()?;
+    let is_transcript = file
+        .file_name()
+        .is_some_and(|name| name == "transcript.jsonl")
+        || (parent.file_name().is_some_and(|name| name == "transcript")
+            && parent
+                .parent()
+                .and_then(Path::file_name)
+                .is_some_and(|name| name == "chunks"));
+    if !is_transcript {
+        return None;
+    }
+    let id = relative.components().next()?.as_os_str().to_str()?;
+    Some(id.to_string())
+}
+
+#[derive(Deserialize)]
+struct AntigravityStep {
+    step_index: u64,
+    #[serde(rename = "type", default)]
+    kind: String,
+    #[serde(default)]
+    source: String,
+    created_at: Option<String>,
+    model: Option<String>,
+    #[serde(default)]
+    input_tokens: u64,
+    #[serde(default)]
+    cache_read_tokens: u64,
+    #[serde(default)]
+    output_tokens: u64,
+}
+
+/// What Antigravity's conversation index says about one conversation.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct AntigravityConversation {
+    /// Normalized folder of the first workspace.
+    pub workspace: Option<String>,
+    pub is_subagent: bool,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct GrokUsageFile {
+    #[serde(default)]
+    session_id: String,
+    #[serde(default)]
+    turns: Vec<GrokTurn>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct GrokTurn {
+    #[serde(default)]
+    ended_at: String,
+    #[serde(flatten)]
+    usage: GrokTokens,
+    primary_model_id: Option<String>,
+    #[serde(default)]
+    model_usage: HashMap<String, GrokTokens>,
+}
+
+#[derive(Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct GrokTokens {
+    #[serde(default)]
+    input_tokens: u64,
+    #[serde(default)]
+    cached_read_tokens: u64,
+    #[serde(default)]
+    output_tokens: u64,
+}
+
+#[derive(Default, Deserialize)]
+struct GrokSummary {
+    #[serde(default)]
+    info: GrokSessionInfo,
+    session_kind: Option<String>,
+}
+
+#[derive(Default, Deserialize)]
+struct GrokSessionInfo {
+    #[serde(default)]
+    id: String,
+    cwd: Option<String>,
+}
+
 pub fn agent_runs_from_commands(mut commands: Vec<BrasaCommand>) -> Vec<BrasaAgentRun> {
     commands.sort_by_key(|command| command.start);
     let mut next_start: HashMap<i64, DateTime<Utc>> = HashMap::new();
@@ -886,6 +1173,51 @@ fn read_brasa_code_folders(workspace_storage: &Path) -> HashSet<String> {
             let folder = workspace.get("folder")?.as_str()?;
             let path = url::Url::parse(folder).ok()?.to_file_path().ok()?;
             Some(normalize_dir(&path.to_string_lossy()))
+        })
+        .collect()
+}
+
+/// Reads Antigravity's conversation index. Its own connection skips the pragmas Brasa sets on its
+/// databases, which a read-only connection could not apply to this file.
+#[cfg(feature = "local_fs")]
+fn read_antigravity_conversations(database: &Path) -> HashMap<String, AntigravityConversation> {
+    use diesel::sql_types::{Nullable, Text};
+    use diesel::sqlite::SqliteConnection;
+    use diesel::{Connection, QueryableByName, RunQueryDsl};
+
+    #[derive(QueryableByName)]
+    struct Row {
+        #[diesel(sql_type = Nullable<Text>)]
+        conversation_id: Option<String>,
+        #[diesel(sql_type = Text)]
+        workspace_uris: String,
+        #[diesel(sql_type = Text)]
+        parent_conversation_id: String,
+    }
+
+    let Some(path) = database.is_file().then(|| database.to_str()).flatten() else {
+        return HashMap::new();
+    };
+    let Ok(mut connection) = SqliteConnection::establish(&format!("file:{path}?mode=ro")) else {
+        return HashMap::new();
+    };
+    let rows = diesel::sql_query(
+        "SELECT conversation_id, workspace_uris, parent_conversation_id FROM conversation_summaries",
+    )
+    .load::<Row>(&mut connection)
+    .unwrap_or_default();
+    rows.into_iter()
+        .filter_map(|row| {
+            let workspace = serde_json::from_str::<Vec<String>>(&row.workspace_uris)
+                .ok()
+                .and_then(|uris| uris.into_iter().next())
+                .and_then(|uri| url::Url::parse(&uri).ok()?.to_file_path().ok())
+                .map(|path| normalize_dir(&path.to_string_lossy()));
+            let conversation = AntigravityConversation {
+                workspace,
+                is_subagent: !row.parent_conversation_id.is_empty(),
+            };
+            Some((row.conversation_id?, conversation))
         })
         .collect()
 }

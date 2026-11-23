@@ -1,7 +1,7 @@
 //! The "Agent usage" pane: how many tokens the AI agents on this computer spend, when and where,
 //! and how much of their plans is left.
 
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::Arc;
 
 use brasaui::assets::asset_cache::AssetSource;
@@ -9,7 +9,7 @@ use brasaui::elements::{
     Align, Border, CacheOption, ClippedScrollStateHandle, ClippedScrollable, ConstrainedBox,
     Container, CornerRadius, CrossAxisAlignment, Empty, Expanded, Fill as UiFill, Flex, Hoverable,
     Image, MainAxisAlignment, MainAxisSize, MouseStateHandle, ParentElement, Radius,
-    ScrollbarWidth, Stack, Text,
+    ScrollbarWidth, Stack, Text, Wrap,
 };
 use brasaui::fonts::{FamilyId, Properties, Weight};
 use brasaui::platform::Cursor;
@@ -119,6 +119,8 @@ pub enum AgentUsageAction {
     ToggleAgent(UsageAgent),
     SetChartMetric(ChartMetric),
     SetClaudeLimits(bool),
+    ToggleCustomize,
+    ToggleHidden(UsageAgent),
     Refresh,
 }
 
@@ -136,6 +138,10 @@ pub struct AgentUsageView {
     loading: bool,
     range: UsageRange,
     agent_filter: Option<UsageAgent>,
+    /// Agents left out of every number and card.
+    hidden_agents: HashSet<UsageAgent>,
+    /// Whether the card for choosing the hidden agents is open.
+    customizing: bool,
     chart_metric: ChartMetric,
     summary: Option<UsageSummary>,
     codex_limits: Option<PlanLimits>,
@@ -144,6 +150,8 @@ pub struct AgentUsageView {
     range_buttons: HashMap<UsageRange, MouseStateHandle>,
     metric_buttons: HashMap<ChartMetric, MouseStateHandle>,
     agent_rows: HashMap<UsageAgent, MouseStateHandle>,
+    visibility_buttons: HashMap<UsageAgent, MouseStateHandle>,
+    customize_button: MouseStateHandle,
     refresh_button: MouseStateHandle,
     claude_limits_button: MouseStateHandle,
     claude_limits_off_button: MouseStateHandle,
@@ -155,6 +163,13 @@ impl AgentUsageView {
         ctx.subscribe_to_model(&AISettings::handle(ctx), |me, _, event, ctx| {
             if matches!(event, AISettingsChangedEvent::AgentUsageClaudeLimits { .. }) {
                 me.refresh_claude_limits(ctx);
+            } else if matches!(event, AISettingsChangedEvent::AgentUsageHiddenAgents { .. }) {
+                let hidden = hidden_agents(ctx);
+                if hidden != me.hidden_agents {
+                    me.hidden_agents = hidden;
+                    me.resummarize();
+                    ctx.notify();
+                }
             }
         });
         let mut view = Self {
@@ -164,6 +179,8 @@ impl AgentUsageView {
             loading: false,
             range: UsageRange::Month,
             agent_filter: None,
+            hidden_agents: hidden_agents(ctx),
+            customizing: false,
             chart_metric: ChartMetric::Input,
             summary: None,
             codex_limits: None,
@@ -178,6 +195,10 @@ impl AgentUsageView {
             agent_rows: all::<UsageAgent>()
                 .map(|agent| (agent, MouseStateHandle::default()))
                 .collect(),
+            visibility_buttons: all::<UsageAgent>()
+                .map(|agent| (agent, MouseStateHandle::default()))
+                .collect(),
+            customize_button: MouseStateHandle::default(),
             refresh_button: MouseStateHandle::default(),
             claude_limits_button: MouseStateHandle::default(),
             claude_limits_off_button: MouseStateHandle::default(),
@@ -224,10 +245,26 @@ impl AgentUsageView {
     }
 
     fn resummarize(&mut self) {
-        self.summary = self
-            .data
-            .as_ref()
-            .map(|data| summarize(data, self.range, self.agent_filter, Local::now()));
+        if self
+            .agent_filter
+            .is_some_and(|agent| self.hidden_agents.contains(&agent))
+        {
+            self.agent_filter = None;
+        }
+        self.summary = self.data.as_ref().map(|data| {
+            let visible;
+            let data = if self.hidden_agents.is_empty() {
+                data.as_ref()
+            } else {
+                visible = data.without_agents(&self.hidden_agents);
+                &visible
+            };
+            summarize(data, self.range, self.agent_filter, Local::now())
+        });
+    }
+
+    fn is_hidden(&self, agent: UsageAgent) -> bool {
+        self.hidden_agents.contains(&agent)
     }
 
     /// Asks Anthropic for the Claude plan limits when the user turned that on.
@@ -317,14 +354,23 @@ impl AgentUsageView {
         if self.loading {
             right.add_child(text("Reading history…", font, 12., palette.faint));
         }
-        right.add_child(
-            Container::new(ranges.finish())
+        let group = |content: Box<dyn Element>| {
+            Container::new(content)
                 .with_uniform_padding(3.)
                 .with_background_color(palette.card)
                 .with_border(Border::all(1.).with_border_color(palette.border))
                 .with_corner_radius(CornerRadius::with_all(Radius::Pixels(9.)))
-                .finish(),
-        );
+                .finish()
+        };
+        right.add_child(group(ranges.finish()));
+        right.add_child(group(pill_button(
+            self.customize_button.clone(),
+            "Customize",
+            self.customizing,
+            AgentUsageAction::ToggleCustomize,
+            palette,
+            font,
+        )));
         right.add_child(
             icon_button_with_color(
                 appearance,
@@ -347,23 +393,80 @@ impl AgentUsageView {
             .finish()
     }
 
-    fn render_limits(&self, palette: &Palette, appearance: &Appearance) -> Box<dyn Element> {
-        let claude = self.render_claude_limits(palette, appearance);
-        let Some(limits) = &self.codex_limits else {
-            return claude;
-        };
-        let codex = limit_card(
-            UsageAgent::Codex,
-            limits.plan.clone(),
-            render_plan_limits(limits, palette, appearance),
-            None,
+    fn render_limits(
+        &self,
+        palette: &Palette,
+        appearance: &Appearance,
+    ) -> Option<Box<dyn Element>> {
+        let mut cards = Vec::new();
+        if !self.is_hidden(UsageAgent::ClaudeCode) {
+            cards.push(self.render_claude_limits(palette, appearance));
+        }
+        if let Some(limits) = &self.codex_limits
+            && !self.is_hidden(UsageAgent::Codex)
+        {
+            cards.push(limit_card(
+                UsageAgent::Codex,
+                limits.plan.clone(),
+                render_plan_limits(limits, palette, appearance),
+                None,
+                palette,
+                appearance,
+            ));
+        }
+        if cards.len() < 2 {
+            return cards.pop();
+        }
+        let mut row = EqualHeightRow::new(GAP, MIN_CARD_WIDTH);
+        for card in cards {
+            row = row.with_child(1., card);
+        }
+        Some(row.finish())
+    }
+
+    /// The agents a user may want to hide: those with history, those with a plan card, and those
+    /// already hidden.
+    fn render_customize(&self, palette: &Palette, appearance: &Appearance) -> Box<dyn Element> {
+        let font = appearance.ui_font_family();
+        let mut agents: BTreeSet<UsageAgent> = self.hidden_agents.iter().copied().collect();
+        agents.insert(UsageAgent::ClaudeCode);
+        if self.codex_limits.is_some() {
+            agents.insert(UsageAgent::Codex);
+        }
+        if let Some(data) = &self.data {
+            agents.extend(data.sessions.iter().map(|session| session.agent));
+        }
+        let mut chips = Wrap::row().with_spacing(8.).with_run_spacing(8.);
+        for agent in agents {
+            if let Some(mouse_state) = self.visibility_buttons.get(&agent) {
+                chips.add_child(visibility_chip(
+                    mouse_state.clone(),
+                    agent,
+                    !self.is_hidden(agent),
+                    palette,
+                    font,
+                ));
+            }
+        }
+        card(
+            Flex::column()
+                .with_spacing(12.)
+                .with_child(card_header(
+                    "Agents in this panel",
+                    "click one to hide or show it".to_string(),
+                    palette,
+                    appearance,
+                ))
+                .with_child(chips.finish())
+                .with_child(text(
+                    "Hidden agents leave every number, chart and plan card.",
+                    font,
+                    11.,
+                    palette.faint,
+                ))
+                .finish(),
             palette,
-            appearance,
-        );
-        EqualHeightRow::new(GAP, MIN_CARD_WIDTH)
-            .with_child(1., claude)
-            .with_child(1., codex)
-            .finish()
+        )
     }
 
     fn render_claude_limits(&self, palette: &Palette, appearance: &Appearance) -> Box<dyn Element> {
@@ -1464,6 +1567,62 @@ fn pill_button(
     .finish()
 }
 
+fn visibility_chip(
+    mouse_state: MouseStateHandle,
+    agent: UsageAgent,
+    shown: bool,
+    palette: &Palette,
+    font: FamilyId,
+) -> Box<dyn Element> {
+    let palette = *palette;
+    let (icon, color) = agent_icon(agent, &palette);
+    Hoverable::new(mouse_state, move |state| {
+        let hovered = state.is_hovered();
+        let (background, border, label_color, mark) = if shown {
+            (
+                with_alpha(BRASA_ORANGE, if hovered { 60 } else { 36 }),
+                with_alpha(BRASA_ORANGE, 110),
+                palette.text,
+                icon_element(Icon::Check, BRASA_AMBER),
+            )
+        } else {
+            (
+                if hovered {
+                    palette.track
+                } else {
+                    ColorU::transparent_black()
+                },
+                palette.border,
+                palette.faint,
+                icon_element(Icon::Eye, palette.faint),
+            )
+        };
+        Container::new(
+            Flex::row()
+                .with_spacing(6.)
+                .with_cross_axis_alignment(CrossAxisAlignment::Center)
+                .with_child(mark)
+                .with_child(icon_element(
+                    icon,
+                    if shown { color } else { palette.faint },
+                ))
+                .with_child(text(agent.display_name(), font, 12., label_color))
+                .finish(),
+        )
+        .with_padding_left(10.)
+        .with_padding_right(12.)
+        .with_padding_top(5.)
+        .with_padding_bottom(5.)
+        .with_background_color(background)
+        .with_border(Border::all(1.).with_border_color(border))
+        .with_corner_radius(CornerRadius::with_all(Radius::Pixels(14.)))
+        .finish()
+    })
+    .with_cursor(Cursor::PointingHand)
+    .on_click(move |ctx, _, _| ctx.dispatch_typed_action(AgentUsageAction::ToggleHidden(agent)))
+    .finish()
+}
+
 fn primary_button(
     mouse_state: MouseStateHandle,
     label: &'static str,
@@ -1744,19 +1903,33 @@ fn provider_icon(provider: Provider) -> Box<dyn Element> {
     }
 }
 
+fn hidden_agents(ctx: &AppContext) -> HashSet<UsageAgent> {
+    AISettings::as_ref(ctx)
+        .agent_usage_hidden_agents
+        .iter()
+        .filter_map(|id| UsageAgent::from_id(id))
+        .collect()
+}
+
 fn agent_icon(agent: UsageAgent, palette: &Palette) -> (Icon, ColorU) {
     let cli_agent = match agent {
         UsageAgent::ClaudeCode => CLIAgent::Claude,
         UsageAgent::Codex => CLIAgent::Codex,
         UsageAgent::GeminiCli => CLIAgent::Gemini,
         UsageAgent::OpenCode => CLIAgent::OpenCode,
+        UsageAgent::Antigravity => CLIAgent::Antigravity,
+        UsageAgent::GrokBuild => CLIAgent::Grok,
         UsageAgent::LocalAi => return (Icon::Brasita, BRASA_ORANGE),
     };
     let color = match agent {
         UsageAgent::ClaudeCode | UsageAgent::GeminiCli => {
             cli_agent.brand_color().unwrap_or(palette.text)
         }
-        UsageAgent::Codex | UsageAgent::OpenCode | UsageAgent::LocalAi => palette.text,
+        UsageAgent::Codex
+        | UsageAgent::OpenCode
+        | UsageAgent::Antigravity
+        | UsageAgent::GrokBuild
+        | UsageAgent::LocalAi => palette.text,
     };
     (cli_agent.icon().unwrap_or(Icon::Terminal), color)
 }
@@ -1786,13 +1959,23 @@ impl View for AgentUsageView {
         let palette = Palette::new(appearance);
         let mut page = Flex::column()
             .with_spacing(GAP)
-            .with_child(self.render_header(&palette, appearance))
-            .with_child(self.render_limits(&palette, appearance));
+            .with_child(self.render_header(&palette, appearance));
+        if self.customizing {
+            page.add_child(self.render_customize(&palette, appearance));
+        }
+        if let Some(limits) = self.render_limits(&palette, appearance) {
+            page.add_child(limits);
+        }
 
         let has_history = self
             .data
             .as_ref()
             .is_some_and(|data| !data.sessions.is_empty());
+        let has_visible_history = self.data.as_ref().is_some_and(|data| {
+            data.sessions
+                .iter()
+                .any(|session| !self.is_hidden(session.agent))
+        });
         match &self.summary {
             None => page.add_child(self.render_message(
                 "Reading your agents' history…",
@@ -1802,8 +1985,14 @@ impl View for AgentUsageView {
             )),
             Some(_) if !has_history => page.add_child(self.render_message(
                 "No agent history yet",
-                "Brasa reads what Claude Code, Codex, Gemini CLI, opencode and its local AI keep \
-                 on this computer. Use any of them and come back.",
+                "Brasa reads what Claude Code, Codex, Gemini CLI, Antigravity, Grok Build, opencode \
+                 and its local AI keep on this computer. Use any of them and come back.",
+                &palette,
+                appearance,
+            )),
+            Some(_) if !has_visible_history => page.add_child(self.render_message(
+                "Every agent is hidden",
+                "Open Customize to show some of them again.",
                 &palette,
                 appearance,
             )),
@@ -1866,6 +2055,26 @@ impl TypedActionView for AgentUsageView {
                     }
                 });
                 return;
+            }
+            AgentUsageAction::ToggleCustomize => {
+                self.customizing = !self.customizing;
+                ctx.notify();
+                return;
+            }
+            AgentUsageAction::ToggleHidden(agent) => {
+                let agent = *agent;
+                if !self.hidden_agents.remove(&agent) {
+                    self.hidden_agents.insert(agent);
+                }
+                let ids: Vec<String> = all::<UsageAgent>()
+                    .filter(|agent| self.hidden_agents.contains(agent))
+                    .map(|agent| agent.id().to_string())
+                    .collect();
+                AISettings::handle(ctx).update(ctx, |settings, ctx| {
+                    if let Err(err) = settings.agent_usage_hidden_agents.set_value(ids, ctx) {
+                        log::warn!("Could not save the hidden agents: {err}");
+                    }
+                });
             }
             AgentUsageAction::Refresh => {
                 self.reload(ctx);

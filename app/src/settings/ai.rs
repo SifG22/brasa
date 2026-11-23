@@ -2134,6 +2134,16 @@ define_settings_group!(AISettings, settings: [
         toml_path: "agents.usage.show_claude_plan_limits",
         description: "Whether the agent usage panel asks Anthropic for your Claude plan limits, using the Claude Code login on this computer.",
     }
+    agent_usage_hidden_agents: AgentUsageHiddenAgents {
+        type: Vec<String>,
+        default: Vec::new(),
+        supported_platforms: SupportedPlatforms::DESKTOP,
+        sync_to_cloud: SyncToCloud::Never,
+        surface: settings::SettingSurfaces::GUI,
+        private: false,
+        toml_path: "agents.usage.hidden_agents",
+        description: "Agents the agent usage panel leaves out: claude_code, codex, gemini_cli, opencode, antigravity, grok_build or local_ai.",
+    }
 
     // Per-agent, per-host tracking of whether the user dismissed the plugin install chip.
     // Keys are "<agent_prefix>" for local sessions or "<agent_prefix>@<host>" for remote.

@@ -102,6 +102,14 @@ fn recognizes_agent_commands() {
         UsageAgent::from_command("cd 'C:\\x'; ollama run 'qwen2.5-coder:3b'"),
         Some(UsageAgent::LocalAi)
     );
+    assert_eq!(
+        UsageAgent::from_command("agy -c"),
+        Some(UsageAgent::Antigravity)
+    );
+    assert_eq!(
+        UsageAgent::from_command("grok"),
+        Some(UsageAgent::GrokBuild)
+    );
     assert_eq!(UsageAgent::from_command("git status"), None);
 }
 
@@ -167,4 +175,121 @@ fn attributes_terminal_sessions_started_in_brasa() {
     assert_eq!(place_of(1), UsagePlace::OtherTerminal);
     assert_eq!(place_of(2), UsagePlace::OtherEditor);
     assert_eq!(data.records[0].place, UsagePlace::Brasa);
+}
+
+#[test]
+fn reads_antigravity_transcripts_once_per_step() {
+    let dir = tempfile::tempdir().unwrap();
+    let logs = dir
+        .path()
+        .join("brain")
+        .join("conv-1")
+        .join(".system_generated")
+        .join("logs");
+    let chunks = logs.join("chunks").join("transcript");
+    fs::create_dir_all(&chunks).unwrap();
+    let lines = [
+        r#"{"step_index":0,"source":"USER_EXPLICIT","type":"USER_INPUT","created_at":"2026-11-22T10:00:00Z","content":"hi"}"#,
+        r#"{"step_index":1,"source":"MODEL","type":"PLANNER_RESPONSE","created_at":"2026-11-22T10:00:05Z","model":"gemini-3.8-flash-high","input_tokens":2315,"cache_read_tokens":7719,"output_tokens":24,"content":"hello"}"#,
+        r#"{"step_index":2,"source":"SYSTEM","type":"SYSTEM_MESSAGE","created_at":"2026-11-22T10:00:06Z"}"#,
+    ]
+    .join("\n");
+    fs::write(logs.join("transcript.jsonl"), &lines).unwrap();
+    fs::write(logs.join("transcript_full.jsonl"), &lines).unwrap();
+    fs::write(chunks.join("00000000.jsonl"), &lines).unwrap();
+
+    let sources = UsageSources {
+        antigravity_dirs: vec![dir.path().to_path_buf()],
+        ..Default::default()
+    };
+    let data = collect(&sources, Vec::new());
+
+    assert_eq!(data.sessions.len(), 1);
+    assert_eq!(data.sessions[0].agent, UsageAgent::Antigravity);
+    assert_eq!(data.sessions[0].turns.len(), 1);
+    assert_eq!(data.records.len(), 1);
+    assert_eq!(data.records[0].input_tokens, 10034);
+    assert_eq!(data.records[0].cached_tokens, 7719);
+    assert_eq!(data.records[0].output_tokens, 24);
+}
+
+#[test]
+fn reads_grok_usage_per_turn_and_model() {
+    let dir = tempfile::tempdir().unwrap();
+    let session = dir.path().join("C%3A%5CUsers%5Cme%5Capp").join("g1");
+    fs::create_dir_all(&session).unwrap();
+    fs::write(
+        session.join("summary.json"),
+        r#"{"info":{"id":"g1","cwd":"C:\\Users\\me\\app"},"session_kind":"headless"}"#,
+    )
+    .unwrap();
+    fs::write(
+        session.join("usage.json"),
+        r#"{"sessionId":"g1","turns":[
+            {"turnNumber":1,"endedAt":"2026-11-22T10:00:10.036557600+00:00","inputTokens":16201,"outputTokens":101,"cachedReadTokens":1152,"primaryModelId":"grok-4.7","modelUsage":{"grok-4.7":{"inputTokens":16201,"outputTokens":101,"cachedReadTokens":1152}}},
+            {"turnNumber":2,"endedAt":"2026-11-22T10:05:00+00:00","inputTokens":300,"outputTokens":20,"cachedReadTokens":0,"primaryModelId":"grok-4.7-fast"}
+        ]}"#,
+    )
+    .unwrap();
+
+    let sources = UsageSources {
+        grok_dirs: vec![dir.path().to_path_buf()],
+        ..Default::default()
+    };
+    let data = collect(&sources, Vec::new());
+
+    assert_eq!(data.sessions.len(), 1);
+    assert_eq!(data.sessions[0].agent, UsageAgent::GrokBuild);
+    assert!(!data.sessions[0].is_subagent);
+    assert_eq!(
+        data.sessions[0].location_key.as_deref(),
+        Some(normalize_dir("C:\\Users\\me\\app").as_str())
+    );
+    assert_eq!(data.sessions[0].turns.len(), 2);
+    assert_eq!(data.records.len(), 2);
+    assert_eq!(data.records[0].input_tokens, 16201);
+    assert_eq!(data.records[0].cached_tokens, 1152);
+    assert_eq!(data.records[1].model.as_deref(), Some("grok-4.7-fast"));
+}
+
+#[test]
+fn hiding_agents_keeps_the_others_records_linked() {
+    let dir = tempfile::tempdir().unwrap();
+    let project = dir.path().join("p");
+    fs::create_dir_all(&project).unwrap();
+    let lines = [
+        claude_prompt("c1", "2026-11-22T10:00:00Z"),
+        claude_assistant("c1", "msg_1", "2026-11-22T10:00:10Z", "cli"),
+    ];
+    fs::write(project.join("s.jsonl"), lines.join("\n")).unwrap();
+    let grok = dir.path().join("grok").join("cwd").join("g1");
+    fs::create_dir_all(&grok).unwrap();
+    fs::write(
+        grok.join("usage.json"),
+        r#"{"sessionId":"g1","turns":[{"turnNumber":1,"endedAt":"2026-11-22T11:00:00Z","inputTokens":10,"outputTokens":5,"primaryModelId":"grok-4.7"}]}"#,
+    )
+    .unwrap();
+    let sources = UsageSources {
+        grok_dirs: vec![dir.path().join("grok")],
+        claude_dirs: vec![dir.path().to_path_buf()],
+        ..Default::default()
+    };
+    let data = collect(&sources, Vec::new());
+    assert_eq!(data.sessions.len(), 2);
+
+    let visible = data.without_agents(&HashSet::from([UsageAgent::ClaudeCode]));
+
+    assert_eq!(visible.sessions.len(), 1);
+    assert_eq!(visible.sessions[0].agent, UsageAgent::GrokBuild);
+    assert_eq!(visible.records.len(), 1);
+    assert_eq!(visible.records[0].session, 0);
+    assert_eq!(visible.records[0].input_tokens, 10);
+}
+
+#[test]
+fn agent_ids_round_trip() {
+    for agent in enum_iterator::all::<UsageAgent>() {
+        assert_eq!(UsageAgent::from_id(agent.id()), Some(agent));
+    }
+    assert_eq!(UsageAgent::from_id("nope"), None);
 }
