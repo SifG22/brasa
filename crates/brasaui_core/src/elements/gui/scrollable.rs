@@ -10,7 +10,7 @@ use super::{
     PaintContext, Point, SizeConstraint, Vector2FExt, ZIndex,
 };
 use crate::ClipBounds;
-use crate::elements::F32Ext;
+use crate::elements::{DEFAULT_SCROLL_WHEEL_PIXELS_PER_LINE, F32Ext};
 use crate::event::{DispatchedEvent, ModifiersState};
 pub use crate::scene::CornerRadius;
 use crate::scene::Radius;
@@ -40,7 +40,7 @@ const MINIMUM_HEIGHT: f32 = 20.;
 /// TODO: currently, this constant reflects the value that makes sense for MacOS (cocoa) scroll events.
 /// Ideally, we should hide this implementation detail at the platform level and have consumers
 /// solely operate with pixel-based scroll events.
-const NUM_PIXELS_PER_LINE: Pixels = Pixels::new(40.);
+const NUM_PIXELS_PER_LINE: Pixels = Pixels::new(DEFAULT_SCROLL_WHEEL_PIXELS_PER_LINE);
 
 #[derive(Clone, Default)]
 pub struct ScrollState {

@@ -8,6 +8,7 @@
 //! The [`PaneContent`] interface requires implementers to maintain a [`PaneId`] for their pane.
 //! The [`PaneId`] must be created via a [`PaneView<BackingView>`]. The [`PaneId`] is consequently
 //! used to render a [`PaneView`] which internally renders the pane, including the [`BackingView`].
+pub(super) mod agent_usage_pane;
 pub(super) mod ai_document_pane;
 pub(super) mod ai_fact_pane;
 pub(super) mod code_diff_pane;
@@ -44,6 +45,7 @@ use url::Url;
 
 pub use self::view::{PaneHeaderAction, PaneHeaderCustomAction, PaneView, PaneViewEvent};
 use super::{ActivationReason, LeafContents, PaneGroup, PaneGroupAction};
+use crate::agent_usage::AgentUsageView;
 use crate::ai::ai_document_view::AIDocumentView;
 use crate::ai::blocklist::inline_action::code_diff_view::CodeDiffView;
 use crate::ai::execution_profiles::editor::ExecutionProfileEditorView;
@@ -146,6 +148,7 @@ pub(crate) enum IPaneType {
     ExecutionProfileEditor,
     GetStarted,
     NetworkLog,
+    AgentUsage,
     DeferredPlaceholder,
     /// A pane type only for tests.
     #[cfg(test)]
@@ -170,6 +173,7 @@ impl Display for IPaneType {
             IPaneType::ExecutionProfileEditor => write!(f, "Execution Profile Editor"),
             IPaneType::GetStarted => write!(f, "GetStarted"),
             IPaneType::NetworkLog => write!(f, "Network Log"),
+            IPaneType::AgentUsage => write!(f, "Agent Usage"),
             IPaneType::DeferredPlaceholder => write!(f, "Placeholder"),
             #[cfg(test)]
             IPaneType::Dummy => write!(f, "Dummy"),
@@ -274,6 +278,11 @@ impl PaneId {
         Self::new_from_ctx(IPaneType::NetworkLog, ctx)
     }
 
+    /// Creates a [`PaneId`] from a [`ViewContext<PaneView<AgentUsageView>>`].
+    pub fn from_agent_usage_pane_ctx(ctx: &ViewContext<PaneView<AgentUsageView>>) -> Self {
+        Self::new_from_ctx(IPaneType::AgentUsage, ctx)
+    }
+
     /// Creates a [`PaneId`] from a [`PaneView<TerminalView>`] entity ID.
     pub fn from_terminal_pane_view(
         terminal_pane_view: &ViewHandle<terminal_pane::TerminalPaneView>,
@@ -376,6 +385,13 @@ impl PaneId {
         network_log_pane_view: &ViewHandle<PaneView<NetworkLogView>>,
     ) -> Self {
         Self::new(IPaneType::NetworkLog, network_log_pane_view)
+    }
+
+    /// Creates a [`PaneId`] from a [`PaneView<AgentUsageView>`] entity ID.
+    pub fn from_agent_usage_pane_view(
+        agent_usage_pane_view: &ViewHandle<PaneView<AgentUsageView>>,
+    ) -> Self {
+        Self::new(IPaneType::AgentUsage, agent_usage_pane_view)
     }
 
     #[cfg_attr(not(feature = "local_fs"), allow(dead_code))]
@@ -496,6 +512,9 @@ impl PaneId {
             }
             IPaneType::NetworkLog => {
                 ChildView::<PaneView<NetworkLogView>>::with_id(self.0.pane_view_id).finish()
+            }
+            IPaneType::AgentUsage => {
+                ChildView::<PaneView<AgentUsageView>>::with_id(self.0.pane_view_id).finish()
             }
             IPaneType::DeferredPlaceholder => brasaui::elements::Empty::new().finish(),
             #[cfg(test)]

@@ -15,7 +15,7 @@ use super::{
     Axis, ClippedScrollStateHandle, CornerRadius, F32Ext, Fill, Point, Radius, ScrollData,
     ScrollbarWidth, SelectableElement, SelectionFragment, ZIndex, scrollbar_size,
 };
-use crate::elements::Vector2FExt;
+use crate::elements::{DEFAULT_SCROLL_WHEEL_PIXELS_PER_LINE, Vector2FExt};
 use crate::event::{DispatchedEvent, ModifiersState};
 use crate::text::word_boundaries::WordBoundariesPolicy;
 use crate::text::{IsRect, SelectionDirection, SelectionType};
@@ -52,7 +52,7 @@ const DUAL_AXES_SCROLL_SENSITIVITY: f32 = 1.0;
 /// TODO: currently, this constant reflects the value that makes sense for MacOS (cocoa) scroll events.
 /// Ideally, we should hide this implementation detail at the platform level and have consumers
 /// solely operate with pixel-based scroll events.
-const NUM_PIXELS_PER_LINE: f32 = 40.;
+const NUM_PIXELS_PER_LINE: f32 = DEFAULT_SCROLL_WHEEL_PIXELS_PER_LINE;
 
 /// Trait a scrollable child element needs to implement to enable manual scrolling.
 /// The element could support scrolling on: horizontal axis, vertical axis, or both axes.

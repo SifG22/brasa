@@ -191,6 +191,7 @@ use focus_state::PaneGroupFocusState;
 mod tests;
 
 use brasa_errors::report_error;
+pub use pane::agent_usage_pane::AgentUsagePane;
 pub use pane::ai_document_pane::AIDocumentPane;
 pub use pane::ai_fact_pane::AIFactPane;
 pub use pane::code_diff_pane::CodeDiffPane;
@@ -2003,6 +2004,16 @@ impl PaneGroup {
                 Err(anyhow::anyhow!(
                     "Network log pane should not have been persisted, as it cannot be restored"
                 ))
+            }
+            LeafContents::AgentUsage => {
+                let pane: Box<dyn AnyPaneContent + 'static> = Box::new(AgentUsagePane::new(ctx));
+                let pane_id = pane.as_pane().id();
+                pane_contents.insert(pane_id, pane);
+                let focus = InitialFocus {
+                    focused_pane: leaf.is_focused.then_some(pane_id),
+                    active_session: None,
+                };
+                Ok((PaneData::new(pane_id), focus))
             }
             LeafContents::GetStarted => {
                 if !FeatureFlag::GetStartedTab.is_enabled() {

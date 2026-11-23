@@ -539,19 +539,21 @@ impl AuthManager {
                     // TODO(alokedesai): Investigate a more robust way of handling events
                     // that don't get flushed to Rudderstack outside of this event specifically.
                     async move {
-                        brasaui::telemetry::record_identify_user_event(
-                            user_id.as_string(),
-                            anonymous_id.clone(),
-                            brasaui::time::get_current_time(),
-                        );
-                        brasaui::telemetry::record_event(
-                            Some(user_id.as_string()),
-                            anonymous_id,
-                            TelemetryEvent::Login.name().into(),
-                            TelemetryEvent::Login.payload(),
-                            TelemetryEvent::Login.contains_ugc(),
-                            brasaui::time::get_current_time(),
-                        );
+                        if ChannelState::is_telemetry_available() {
+                            brasaui::telemetry::record_identify_user_event(
+                                user_id.as_string(),
+                                anonymous_id.clone(),
+                                brasaui::time::get_current_time(),
+                            );
+                            brasaui::telemetry::record_event(
+                                Some(user_id.as_string()),
+                                anonymous_id,
+                                TelemetryEvent::Login.name().into(),
+                                TelemetryEvent::Login.payload(),
+                                TelemetryEvent::Login.contains_ugc(),
+                                brasaui::time::get_current_time(),
+                            );
+                        }
 
                         // Note that this snapshot might get overwritten to disabled after the server fetch.
                         // However, it is still fine to flush to Rudderstack here as the login event is low-risk

@@ -209,7 +209,12 @@ pub enum EnablementState {
 }
 
 impl EnablementState {
+    /// Whether the event is recorded. Builds without a telemetry config, such as Brasa's, never
+    /// record anything.
     pub fn is_enabled(&self) -> bool {
+        if !ChannelState::is_telemetry_available() {
+            return false;
+        }
         match self {
             EnablementState::Always => true,
             EnablementState::Flag(flag) => flag.is_enabled(),

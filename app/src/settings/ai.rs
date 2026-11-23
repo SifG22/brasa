@@ -2123,6 +2123,16 @@ define_settings_group!(AISettings, settings: [
         private: false,
         toml_path: "agents.brasa_agent.other.show_agent_notifications",
         description: "Whether agent notifications are shown.",
+    },
+    agent_usage_claude_limits: AgentUsageClaudeLimits {
+        type: bool,
+        default: false,
+        supported_platforms: SupportedPlatforms::DESKTOP,
+        sync_to_cloud: SyncToCloud::Never,
+        surface: settings::SettingSurfaces::GUI,
+        private: false,
+        toml_path: "agents.usage.show_claude_plan_limits",
+        description: "Whether the agent usage panel asks Anthropic for your Claude plan limits, using the Claude Code login on this computer.",
     }
 
     // Per-agent, per-host tracking of whether the user dismissed the plugin install chip.

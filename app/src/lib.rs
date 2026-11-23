@@ -1,5 +1,6 @@
 #![allow(clippy::doc_lazy_continuation)]
 
+mod agent_usage;
 mod ai;
 mod alloc;
 mod antivirus;
@@ -1918,6 +1919,7 @@ pub(crate) fn initialize_app(
     ctx.add_singleton_model(|_| RecordingController::new());
     ctx.add_singleton_model(|_| ExecutionProfileEditorManager::default());
     ctx.add_singleton_model(|_| NetworkLogPaneManager::default());
+    ctx.add_singleton_model(|_| agent_usage::AgentUsagePaneManager::default());
     ctx.add_singleton_model(|_| pricing::PricingInfoModel::new());
     ctx.add_singleton_model(ai::pricing_promotion::PricingPromotionState::new);
     ctx.add_singleton_model(|ctx| {
@@ -2698,6 +2700,9 @@ pub(crate) fn app_callbacks(
                 .update(ctx, move |me, ctx| me.reachability_changed(reachable, ctx));
         })),
         on_become_active: Some(Box::new(move |ctx| {
+            if !ChannelState::is_telemetry_available() {
+                return;
+            }
             let auth_state = AuthStateProvider::as_ref(ctx).get();
             ctx.record_app_focus(
                 auth_state.user_id().map(|uid| uid.as_string()),
@@ -2752,11 +2757,13 @@ pub(crate) fn app_callbacks(
             }
             ctx.dispatch_global_action("root_view:update_quake_mode_state", &update_quake_mode_arg);
 
-            let auth_state = AuthStateProvider::as_ref(ctx).get();
-            ctx.record_app_blur(
-                auth_state.user_id().map(|uid| uid.as_string()),
-                auth_state.anonymous_id(),
-            );
+            if ChannelState::is_telemetry_available() {
+                let auth_state = AuthStateProvider::as_ref(ctx).get();
+                ctx.record_app_blur(
+                    auth_state.user_id().map(|uid| uid.as_string()),
+                    auth_state.anonymous_id(),
+                );
+            }
         })),
         on_will_terminate: Some(Box::new(move |ctx| {
             NotebookManager::handle(ctx).update(ctx, |manager, ctx| {
@@ -2769,14 +2776,16 @@ pub(crate) fn app_callbacks(
                 writer.terminate();
             });
 
-            let auth_state = AuthStateProvider::as_ref(ctx).get();
-            ctx.try_record_daily_app_focus_duration(
-                auth_state.user_id().map(|uid| uid.as_string()),
-                auth_state.anonymous_id(),
-            );
-            TelemetryCollector::handle(ctx).update(ctx, |telemetry_collector, ctx| {
-                telemetry_collector.flush_telemetry_events_for_shutdown(ctx);
-            });
+            if ChannelState::is_telemetry_available() {
+                let auth_state = AuthStateProvider::as_ref(ctx).get();
+                ctx.try_record_daily_app_focus_duration(
+                    auth_state.user_id().map(|uid| uid.as_string()),
+                    auth_state.anonymous_id(),
+                );
+                TelemetryCollector::handle(ctx).update(ctx, |telemetry_collector, ctx| {
+                    telemetry_collector.flush_telemetry_events_for_shutdown(ctx);
+                });
+            }
 
             // Shutdown all LSP servers gracefully before app termination
             lsp::LspManagerModel::handle(ctx).update(ctx, |manager, ctx| {

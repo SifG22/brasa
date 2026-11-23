@@ -4471,6 +4471,7 @@ impl PaneGroup {
             IPaneType::CustomRouterEditor
             | IPaneType::GetStarted
             | IPaneType::NetworkLog
+            | IPaneType::AgentUsage
             | IPaneType::DeferredPlaceholder => TypedPane::Other,
             #[cfg(test)]
             IPaneType::Dummy => TypedPane::Other,

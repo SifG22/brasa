@@ -2,6 +2,7 @@ use std::fmt::Display;
 use std::sync::Arc;
 
 use anyhow::Result;
+use brasa_core::channel::ChannelState;
 use brasa_core::features::FeatureFlag;
 use brasa_errors::{report_error, report_if_error};
 use brasa_graphql::mutations::update_user_settings::UpdateUserSettingsInput;
@@ -196,6 +197,9 @@ impl PrivacySettingsSnapshot {
     }
 
     pub fn should_disable_telemetry(&self) -> bool {
+        if !ChannelState::is_telemetry_available() {
+            return true;
+        }
         // If a user has opted in to the agent mode analytics experiment, telemetry must be enabled.
         !self.is_telemetry_enabled
             && !self.is_telemetry_force_enabled

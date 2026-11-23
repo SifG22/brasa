@@ -65,6 +65,8 @@ pub enum Icon {
     CreateTeam,
     BrasaDrive,
     Brasa,
+    /// Brasa's mascot.
+    Brasita,
     BrasaLogoLight,
     ArrowLeft,
     ArrowBlockLeft,
@@ -417,6 +419,7 @@ impl From<Icon> for &'static str {
             Icon::CreateTeam => "bundled/svg/create-team.svg",
             Icon::BrasaDrive => "bundled/svg/brasa.svg",
             Icon::Brasa => "bundled/svg/brasa-drive.svg",
+            Icon::Brasita => "bundled/svg/brasita.svg",
             Icon::BrasaLogoLight => "bundled/svg/brasa-logo-light.svg",
             Icon::ArrowLeft => "bundled/svg/arrow-left.svg",
             Icon::ArrowBlockLeft => "bundled/svg/arrow-block-left.svg",

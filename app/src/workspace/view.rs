@@ -167,6 +167,7 @@ use super::util::{
     WorkspaceMouseStates, WorkspaceState, team_switcher_menu_items,
 };
 use super::{ActiveSession, TabBarDropTargetData, TabBarLocation, WorkspaceRegistry, util};
+use crate::agent_usage::AgentUsagePaneManager;
 use crate::ai::active_agent_views_model::ActiveAgentViewsModel;
 #[cfg(all(feature = "local_fs", not(target_family = "wasm")))]
 use crate::ai::agent::CancellationReason;
@@ -12805,6 +12806,20 @@ impl Workspace {
         ctx.notify();
     }
 
+    /// Opens the agent usage dashboard in a new tab, or focuses it when this window already has one.
+    fn open_agent_usage(&mut self, ctx: &mut ViewContext<Self>) {
+        if let Some(locator) = AgentUsagePaneManager::as_ref(ctx).find_pane(ctx.window_id()) {
+            self.focus_pane(locator, ctx);
+            return;
+        }
+        let panes_layout = PanesLayout::Snapshot(Box::new(PaneNodeSnapshot::Leaf(LeafSnapshot {
+            is_focused: true,
+            custom_vertical_tabs_title: None,
+            contents: LeafContents::AgentUsage,
+        })));
+        self.add_tab_with_pane_layout(panes_layout, Arc::new(HashMap::new()), None, ctx);
+    }
+
     /// Opens the active session's folder in Brasa Code. When Brasa Code is not installed, opens
     /// its download page instead.
     fn open_in_brasa_code(&mut self, ctx: &mut ViewContext<Self>) {
@@ -20869,6 +20884,27 @@ impl Workspace {
         .finish()
     }
 
+    fn render_agent_usage_button(
+        &self,
+        appearance: &Appearance,
+        ctx: &AppContext,
+    ) -> Box<dyn Element> {
+        Align::new(
+            self.render_tab_bar_icon_button(
+                appearance,
+                icons::Icon::Brasita,
+                &self.mouse_states.agent_usage_button,
+                WorkspaceAction::OpenAgentUsage,
+                "Agent usage: tokens your AI agents spend".to_string(),
+                keybinding_name_to_display_string("workspace:open_agent_usage", ctx),
+                false,
+                false,
+            )
+            .finish(),
+        )
+        .finish()
+    }
+
     fn render_brasa_code_button(
         &self,
         appearance: &Appearance,
@@ -21698,6 +21734,7 @@ impl Workspace {
             }
             HeaderToolbarItemKind::ClaudeCode => self.render_claude_code_button(appearance, ctx),
             HeaderToolbarItemKind::BrasaCode => self.render_brasa_code_button(appearance, ctx),
+            HeaderToolbarItemKind::AgentUsage => self.render_agent_usage_button(appearance, ctx),
             HeaderToolbarItemKind::CodeReview => self.render_right_panel_button(appearance, ctx),
             HeaderToolbarItemKind::NotificationsMailbox => {
                 self.render_notifications_mailbox_button(appearance, ctx)
@@ -23341,6 +23378,7 @@ impl Workspace {
             HeaderToolbarItemKind::AgentManagement
             | HeaderToolbarItemKind::ClaudeCode
             | HeaderToolbarItemKind::BrasaCode
+            | HeaderToolbarItemKind::AgentUsage
             | HeaderToolbarItemKind::NotificationsMailbox => None,
         }
     }
@@ -24587,6 +24625,14 @@ impl TypedActionView for Workspace {
             }
             OpenClaudeCode { prompt } => self.open_claude_code(prompt.as_deref(), ctx),
             OpenInBrasaCode => self.open_in_brasa_code(ctx),
+            OpenAgentUsage => self.open_agent_usage(ctx),
+            ToggleClaudePlanLimits => {
+                let settings = AISettings::handle(ctx);
+                let enabled = !*settings.as_ref(ctx).agent_usage_claude_limits.value();
+                ctx.update_model(&settings, |settings, ctx| {
+                    report_if_error!(settings.agent_usage_claude_limits.set_value(enabled, ctx));
+                });
+            }
             OpenLocalAi { prompt } => self.open_local_ai(prompt.as_deref(), ctx),
             AddTabWithShell { shell, source } => {
                 self.add_tab_with_shell(shell.clone(), *source, ctx)

@@ -257,6 +257,10 @@ pub enum WorkspaceAction {
     /// Opens the active session's directory in Brasa Code, or its download page when it is not
     /// installed.
     OpenInBrasaCode,
+    /// Opens (or focuses) the tab with the agent usage dashboard.
+    OpenAgentUsage,
+    /// Turns on or off asking Anthropic for the Claude plan limits shown in the agent usage panel.
+    ToggleClaudePlanLimits,
     /// Opens a new tab running the local AI (Ollama) in the active session's directory.
     OpenLocalAi {
         /// A first message for the local AI, such as a failed command and its output.
@@ -999,6 +1003,8 @@ impl WorkspaceAction {
             | AddTerminalTab { .. }
             | OpenClaudeCode { .. }
             | OpenInBrasaCode
+            | OpenAgentUsage
+            | ToggleClaudePlanLimits
             | OpenLocalAi { .. }
             | AddTabWithShell { .. }
             | AddGetStartedTab

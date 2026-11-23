@@ -1090,11 +1090,10 @@ pub const PREVIEW_FLAGS: &[FeatureFlag] = &[];
 /// Features enabled for all release builds (i.e.: everything but BrasaLocal).
 /// NOTE: if you are promoting a feature from Preview to launch, you'll likely
 /// want to enable the feature by default in app/Cargo.toml, rather than add it to RELEASE_FLAGS.
+///
+/// Brasa leaves out Autoupdate, Changelog, CrashReporting and PeriodicHandoffCheckpoints: they
+/// depend on servers it does not have, and Brasa updates itself through `brasa_update`.
 pub const RELEASE_FLAGS: &[FeatureFlag] = &[
-    FeatureFlag::Autoupdate,
-    FeatureFlag::Changelog,
-    FeatureFlag::CrashReporting,
-    FeatureFlag::PeriodicHandoffCheckpoints,
     FeatureFlag::VideoRecording,
     FeatureFlag::WindowsVideoRecording,
     FeatureFlag::ImeMarkedText,

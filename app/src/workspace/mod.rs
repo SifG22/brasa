@@ -748,6 +748,18 @@ pub fn init(app: &mut AppContext) {
         )
         .with_context_predicate(id!("Workspace") & !id!("Workspace_PaneDragging")),
         EditableBinding::new(
+            "workspace:open_agent_usage",
+            BindingDescription::new("Open Agent Usage (tokens spent by AI agents)"),
+            WorkspaceAction::OpenAgentUsage,
+        )
+        .with_context_predicate(id!("Workspace") & !id!("Workspace_PaneDragging")),
+        EditableBinding::new(
+            "workspace:toggle_claude_plan_limits",
+            BindingDescription::new("Agent Usage: Turn Claude plan limits on or off"),
+            WorkspaceAction::ToggleClaudePlanLimits,
+        )
+        .with_context_predicate(id!("Workspace") & !id!("Workspace_PaneDragging")),
+        EditableBinding::new(
             "workspace:open_local_ai",
             BindingDescription::new("Chat with the local AI (Ollama) in the current folder"),
             WorkspaceAction::OpenLocalAi { prompt: None },

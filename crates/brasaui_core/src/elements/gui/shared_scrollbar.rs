@@ -6,7 +6,9 @@ use crate::units::{IntoPixels, Pixels};
 
 pub const DEFAULT_SCROLLBAR_PADDING_BETWEEN_CHILD_AND_TRACK: f32 = 2.0;
 pub const DEFAULT_SCROLLBAR_PADDING_AFTER_TRACK: f32 = 2.0;
-pub const DEFAULT_SCROLL_WHEEL_PIXELS_PER_LINE: f32 = 40.0;
+/// Pixels scrolled per line for mouse wheels that report lines instead of pixels. Windows already
+/// turns each notch into several lines (three by default), so its lines are shorter.
+pub const DEFAULT_SCROLL_WHEEL_PIXELS_PER_LINE: f32 = if cfg!(windows) { 20.0 } else { 40.0 };
 pub const MIN_SCROLLBAR_THUMB_LENGTH: f32 = 20.0;
 
 #[derive(Clone, Copy, Debug)]

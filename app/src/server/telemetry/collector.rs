@@ -42,6 +42,10 @@ impl TelemetryCollector {
     }
 
     pub fn initialize_telemetry_collection(&self, ctx: &mut ModelContext<TelemetryCollector>) {
+        // Without a telemetry config there is nowhere to send events, so nothing is scheduled.
+        if !ChannelState::is_telemetry_available() {
+            return;
+        }
         // Start a background thread to periodically flush events from the telemetry event queue.
         if ChannelState::is_release_bundle() || FeatureFlag::WithSandboxTelemetry.is_enabled() {
             // Flush the events to Rudderstack that were persisted into a file the last time the app was

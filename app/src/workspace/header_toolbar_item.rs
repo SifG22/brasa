@@ -28,6 +28,7 @@ use crate::workspace::tab_settings::TabSettings;
 pub enum HeaderToolbarItemKind {
     ClaudeCode,
     BrasaCode,
+    AgentUsage,
     TabsPanel,
     ToolsPanel,
     AgentManagement,
@@ -40,6 +41,7 @@ impl HeaderToolbarItemKind {
         match self {
             Self::ClaudeCode => "Claude Code",
             Self::BrasaCode => "Brasa Code",
+            Self::AgentUsage => "Agent Usage",
             Self::TabsPanel => "Tabs Panel",
             Self::ToolsPanel => "Tools Panel",
             Self::AgentManagement => "Agent Management",
@@ -52,6 +54,7 @@ impl HeaderToolbarItemKind {
         match self {
             Self::ClaudeCode => Icon::ClaudeLogo,
             Self::BrasaCode => Icon::InlineCode,
+            Self::AgentUsage => Icon::Brasita,
             Self::TabsPanel => Icon::Menu,
             Self::ToolsPanel => Icon::Tool2,
             Self::AgentManagement => Icon::Grid,
@@ -67,6 +70,7 @@ impl HeaderToolbarItemKind {
         match self {
             Self::ClaudeCode => true,
             Self::BrasaCode => cfg!(all(windows, feature = "local_fs")),
+            Self::AgentUsage => true,
             Self::TabsPanel => {
                 FeatureFlag::VerticalTabs.is_enabled()
                     && *TabSettings::as_ref(app).use_vertical_tabs
@@ -113,6 +117,7 @@ impl HeaderToolbarItemKind {
         vec![
             Self::ClaudeCode,
             Self::BrasaCode,
+            Self::AgentUsage,
             Self::CodeReview,
             Self::NotificationsMailbox,
         ]
@@ -123,6 +128,7 @@ impl HeaderToolbarItemKind {
         vec![
             Self::ClaudeCode,
             Self::BrasaCode,
+            Self::AgentUsage,
             Self::TabsPanel,
             Self::ToolsPanel,
             Self::AgentManagement,
