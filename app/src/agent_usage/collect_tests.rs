@@ -253,6 +253,39 @@ fn reads_grok_usage_per_turn_and_model() {
 }
 
 #[test]
+fn grok_turns_start_when_their_prompt_started() {
+    let dir = tempfile::tempdir().unwrap();
+    let session = dir.path().join("cwd").join("g1");
+    fs::create_dir_all(&session).unwrap();
+    fs::write(
+        session.join("usage.json"),
+        r#"{"sessionId":"g1","turns":[{"turnNumber":1,"endedAt":"2026-11-22T10:00:40Z","inputTokens":10,"outputTokens":5,"primaryModelId":"grok-4.7"}]}"#,
+    )
+    .unwrap();
+    fs::write(
+        session.join("events.jsonl"),
+        "{\"ts\":\"2026-11-22T10:00:00.242Z\",\"type\":\"turn_started\",\"turn_number\":0}\n\
+         {\"ts\":\"2026-11-22T10:00:01Z\",\"type\":\"first_token\"}\n",
+    )
+    .unwrap();
+
+    let sources = UsageSources {
+        grok_dirs: vec![dir.path().to_path_buf()],
+        ..Default::default()
+    };
+    let data = collect(&sources, Vec::new());
+
+    assert_eq!(
+        data.sessions[0].turns,
+        vec!["2026-11-22T10:00:00.242Z".parse::<DateTime<Utc>>().unwrap()]
+    );
+    assert_eq!(
+        data.records[0].timestamp,
+        "2026-11-22T10:00:40Z".parse::<DateTime<Utc>>().unwrap()
+    );
+}
+
+#[test]
 fn hiding_agents_keeps_the_others_records_linked() {
     let dir = tempfile::tempdir().unwrap();
     let project = dir.path().join("p");

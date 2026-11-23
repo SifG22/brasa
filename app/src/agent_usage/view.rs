@@ -587,7 +587,10 @@ impl AgentUsageView {
             (
                 "Tasks",
                 format_count(totals.tasks),
-                format!("{} prompts", format_count(totals.turns)),
+                match totals.turns {
+                    1 => "1 prompt".to_string(),
+                    turns => format!("{} prompts", format_count(turns)),
+                },
                 change(|totals| totals.tasks),
             ),
             (
@@ -875,9 +878,9 @@ impl AgentUsageView {
                     .with_child(provider_icon(*provider))
                     .with_child(text(
                         format!(
-                            "{} {}%",
+                            "{} {}",
                             provider.display_name(),
-                            percent_of(*tokens, total)
+                            percent_label(*tokens, total)
                         ),
                         font,
                         11.,
@@ -899,16 +902,20 @@ impl AgentUsageView {
         let per_column = summary.models.len().min(MAX_MODEL_ROWS).div_ceil(2);
         for (index, model) in summary.models.iter().take(MAX_MODEL_ROWS).enumerate() {
             let tokens = token_total(&model.totals);
+            let mut detail = format!(
+                "in {} · out {}",
+                format_tokens(model.totals.input_tokens),
+                format_tokens(model.totals.output_tokens)
+            );
+            // Models used only by subagents have no tasks of their own.
+            if model.totals.tasks > 0 {
+                detail.push_str(&format!(" · {}", tasks_label(model.totals.tasks)));
+            }
             columns[usize::from(index >= per_column)].add_child(leaderboard_row(
                 provider_icon(model.provider),
                 model.name.clone(),
-                format!(
-                    "in {} · out {} · {} tasks",
-                    format_tokens(model.totals.input_tokens),
-                    format_tokens(model.totals.output_tokens),
-                    format_count(model.totals.tasks)
-                ),
-                format!("{}%", percent_of(tokens, total)),
+                detail,
+                percent_label(tokens, total),
                 fraction(tokens, max_tokens),
                 provider_color(model.provider),
                 palette,
@@ -991,7 +998,7 @@ impl AgentUsageView {
             // Local AI has no token counts, so it is measured by time.
             let (detail, share_label, bar) = if agent == UsageAgent::LocalAi {
                 (
-                    format!("{} tasks", format_count(stats.totals.tasks)),
+                    tasks_label(stats.totals.tasks),
                     format_duration(stats.totals.agent_seconds),
                     fraction(stats.totals.agent_seconds.max(0) as u64, max_seconds),
                 )
@@ -1003,7 +1010,7 @@ impl AgentUsageView {
                         format_tokens(stats.totals.output_tokens),
                         format_duration(stats.totals.agent_seconds)
                     ),
-                    format!("{}%", percent_of(tokens, total)),
+                    percent_label(tokens, total),
                     fraction(tokens, max_tokens),
                 )
             };
@@ -1093,7 +1100,7 @@ impl AgentUsageView {
                         .finish(),
                 )
                 .with_child(
-                    Text::new(format!("{}%", percent_of(tokens, total)), font, 20.)
+                    Text::new(percent_label(tokens, total), font, 20.)
                         .with_color(color)
                         .with_style(bold())
                         .finish(),
@@ -1109,7 +1116,7 @@ impl AgentUsageView {
                     palette.sub,
                 ))
                 .with_child(text(
-                    format!("{} tasks", format_count(stats.totals.tasks)),
+                    tasks_label(stats.totals.tasks),
                     font,
                     11.,
                     palette.faint,
@@ -1132,14 +1139,19 @@ impl AgentUsageView {
                 .with_spacing(12.)
                 .with_child(card_header(
                     "Where they run",
-                    "Brasa: agents started in its terminal · Brasa Code: agent extensions in \
-                     folders it opened"
-                        .to_string(),
+                    "share of tokens".to_string(),
                     palette,
                     appearance,
                 ))
                 .with_child(segmented_bar(&segments, palette.track))
                 .with_child(chips.finish())
+                .with_child(text(
+                    "Brasa counts agents started in its terminal, and Brasa Code the agent \
+                     extensions in folders it opened.",
+                    font,
+                    11.,
+                    palette.faint,
+                ))
                 .finish(),
             palette,
         )
@@ -1821,6 +1833,22 @@ fn percent_of(value: u64, total: u64) -> u64 {
     }
 }
 
+/// `42%`, or `<1%` for a share too small to round up to 1%.
+fn percent_label(value: u64, total: u64) -> String {
+    match percent_of(value, total) {
+        0 if value > 0 => "<1%".to_string(),
+        percent => format!("{percent}%"),
+    }
+}
+
+/// `1 task` or `12 tasks`.
+fn tasks_label(tasks: u64) -> String {
+    match tasks {
+        1 => "1 task".to_string(),
+        tasks => format!("{} tasks", format_count(tasks)),
+    }
+}
+
 /// A bar filling `fraction` of its parent's height, from the bottom or from the top.
 fn vertical_bar(fraction: f32, color: ColorU, from_bottom: bool) -> Box<dyn Element> {
     let mut column = Flex::column();
@@ -1894,7 +1922,7 @@ fn provider_icon(provider: Provider) -> Box<dyn Element> {
     match provider {
         Provider::Anthropic => icon_element(Icon::ClaudeLogo, color),
         Provider::OpenAi => icon_element(Icon::OpenAILogo, color),
-        Provider::Google => icon_element(Icon::GeminiLogo, color),
+        Provider::Google => icon_element(Icon::GeminiEnterpriseAgentPlatform, color),
         Provider::Xai => icon_element(Icon::GrokLogo, color),
         Provider::Other => ConstrainedBox::new(swatch(color, 4.))
             .with_width(8.)

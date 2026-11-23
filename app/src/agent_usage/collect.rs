@@ -815,11 +815,16 @@ impl UsageBuilder {
         if let Some(cwd) = summary.info.cwd {
             state.location_key = Some(normalize_dir(&cwd));
         }
+        let turn_starts = grok_turn_starts(&path.with_file_name("events.jsonl"));
+        let has_turn_starts = !turn_starts.is_empty();
+        self.sessions[session].turns.extend(turn_starts);
         for turn in usage.turns {
             let Some(timestamp) = parse_timestamp(&turn.ended_at) else {
                 continue;
             };
-            self.sessions[session].turns.push(timestamp);
+            if !has_turn_starts {
+                self.sessions[session].turns.push(timestamp);
+            }
             if turn.model_usage.is_empty() {
                 self.push_grok_record(session, timestamp, turn.primary_model_id, &turn.usage);
             }
@@ -1047,6 +1052,26 @@ struct GrokSessionInfo {
     #[serde(default)]
     id: String,
     cwd: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct GrokEvent {
+    ts: String,
+    #[serde(rename = "type")]
+    kind: String,
+}
+
+/// When each prompt started. `usage.json` only says when turns ended.
+fn grok_turn_starts(events: &Path) -> Vec<DateTime<Utc>> {
+    let Ok(text) = std::fs::read_to_string(events) else {
+        return Vec::new();
+    };
+    text.lines()
+        .filter(|line| line.contains("\"turn_started\""))
+        .filter_map(|line| serde_json::from_str::<GrokEvent>(line).ok())
+        .filter(|event| event.kind == "turn_started")
+        .filter_map(|event| parse_timestamp(&event.ts))
+        .collect()
 }
 
 pub fn agent_runs_from_commands(mut commands: Vec<BrasaCommand>) -> Vec<BrasaAgentRun> {

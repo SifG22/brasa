@@ -1,5 +1,12 @@
 # Novedades de Brasa
 
+## 0.2.2
+
+- **Agent usage más claro**: los agentes, modelos y sitios con muy poco uso ponen *<1%* en vez de *0%*, y Google lleva la estrella de Gemini.
+- El título de *Where they run* ya no se monta con su explicación, que ahora va debajo.
+- Grok Build cuenta el tiempo que trabaja desde que le escribes, no solo cuándo termina.
+- "1 task" y "1 prompt" en singular, y los modelos que solo usan los subagentes ya no ponen "0 tasks".
+
 ## 0.2.1
 
 - **Antigravity y Grok Build en Agent usage**: el panel cuenta también los tokens, tareas, modelos y tiempo de la CLI de Antigravity (`agy`) y de Grok Build (`grok`), y si los usas dentro de Brasa.
